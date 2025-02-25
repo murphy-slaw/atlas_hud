@@ -37,10 +37,8 @@ repositories {
 		name 'Xander Maven'
 		url 'https://maven.isxander.dev/releases'
 	}
-	maven {
-		name = "CottonMC"
-		url = "https://server.bbkr.space/artifactory/libs-release"
-	}
+	maven { url "https://repo.sleeping.town" }
+
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -58,7 +56,7 @@ loom {
     splitEnvironmentSourceSets()
 
 	mods {
-		"template" {
+		"atlas_hud" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
@@ -82,6 +80,9 @@ dependencies {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 	modApi("com.terraformersmc:modmenu:${project.modmenu_version}")
+	modImplementation "maven.modrinth:antique-atlas-4:${project.antique_atlas_version}"
+	modImplementation "folk.sisby:surveyor:${project.surveyor_version}"
+
 }
 
 processResources {
@@ -132,7 +133,7 @@ publishMods {
 
 	curseforge {
 		projectId = ""
-		projectSlug = "template" // Required for discord webhook
+		projectSlug = "atlas_hud" // Required for discord webhook
 		accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
 		minecraftVersions.add(project.minecraft_version)
 		javaVersions.add(JavaVersion.VERSION_17)

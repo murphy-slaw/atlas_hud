@@ -1,44 +1,38 @@
 {
 	"schemaVersion": 1,
-	"id": "template",
+	"id": "atlas_hud",
 	"version": "${version}",
-	"name": "Template",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Antique Atlas HUD Compass",
+	"description": "Displays a compass ribbon in the HUD showing Antique Atlas 4 map markers.",
 	"authors": [
-		"Me!"
+		"murphy_slaw"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/murphy-slaw/atlas_hud"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/template/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.funkpla.template.Template"
+            "net.funkpla.atlas_hud.AtlasHudMod"
 		],
 		"client": [
-			"net.funkpla.template.TemplateClient"
+			"net.funkpla.atlas_hud.AtlasHudClient"
 		],
-		"fabric-datagen": [
-			"net.funkpla.template.TemplateDataGenerator"
+		"modmenu": [
+			"net.funkpla.atlas_hud.ModMenuConfig"
 		]
 	},
 	"mixins": [
-		"template.mixins.json",
-		{
-			"config": "template.client.mixins.json",
-			"environment": "client"
-		}
 	],
 	"depends": {
 		"fabricloader": ">=0.15.11",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"antique-atlas-4": ">=2.11.1"
 	},
 	"suggests": {
-		"another-mod": "*"
 	}
 }
