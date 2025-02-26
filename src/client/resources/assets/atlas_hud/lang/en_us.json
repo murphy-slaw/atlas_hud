@@ -1,0 +1,14 @@
+{
+    "text.autoconfig.atlas_hud.title": "Antique Atlas Compass HUD",
+    "text.autoconfig.atlas_hud.option.DisplayRule": "Show compass HUD",
+    "text.autoconfig.atlas_hud.option.ShowDirections": "Show compass directions",
+    "text.autoconfig.atlas_hud.option.ShowMarkers": "Show Antique Atlas Markers",
+    "text.autoconfig.atlas_hud.option.DrawBackground": "Draw compass decorations",
+    "text.autoconfig.atlas_hud.option.CompassArc": "Compass arc length (degrees)",
+    "text.autoconfig.atlas_hud.option.CompassWidth": "Compass width (% of screen width)",
+    "text.autoconfig.atlas_hud.option.CompassOpacity": "Compass opacity (%)",
+    "text.autoconfig.atlas_hud.option.CompassOffset": "Offset from top of screen (pixels)",
+    "text.autoconfig.atlas_hud.option.MarkerScale": "Antique Atlas marker scale (%)",
+    "text.autoconfig.atlas_hud.option.CompassTextColor": "Text color",
+    "text.autoconfig.atlas_hud.option.CompassBackgroundColor": "Decoration color"
+}

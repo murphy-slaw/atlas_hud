@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "atlas_hud",
 	"version": "${version}",
-	"name": "Antique Atlas HUD Compass",
-	"description": "Displays a compass ribbon in the HUD showing Antique Atlas 4 map markers.",
+	"name": "Antique Atlas Compass HUD",
+	"description": "Displays a compass ribbon in the HUD with Antique Atlas 4 map markers.",
 	"authors": [
 		"murphy_slaw"
 	],
@@ -11,7 +11,7 @@
 		"sources": "https://github.com/murphy-slaw/atlas_hud"
 	},
 	"license": "MIT",
-	"icon": "assets/template/icon.png",
+	"icon": "assets/atlas_hud/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

@@ -13,15 +13,20 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class CompassHudOverlay implements HudRenderCallback {
 
     private final AtlasHudConfig config = AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
+    private final ItemStack compassItemStack = new ItemStack(Items.COMPASS);
     private int centerX;
     private int compassWidth;
     private int compassStartX;
@@ -30,12 +35,12 @@ public class CompassHudOverlay implements HudRenderCallback {
     private float markerScale;
     private GuiGraphics ctx;
     private Font font;
+    private ClientLevel level;
     private Player player;
 
     @Override
     public void onHudRender(GuiGraphics ctx, float tickDelta) {
         Minecraft client = Minecraft.getInstance();
-        ClientLevel level = client.level;
         this.ctx = ctx;
         int windowWidth = ctx.guiWidth();
         centerX = windowWidth / 2;
@@ -46,16 +51,48 @@ public class CompassHudOverlay implements HudRenderCallback {
         markerScale = config.MarkerScale / 100f;
         font = client.gui.getFont();
         player = client.player;
+        level = client.level;
 
         renderBackground();
-
-        for (AtlasMarker marker : getSortedMarkers(level, player)) {
-            if (marker.getDistance() <= 2)
-                break;
-            renderMarker(marker);
-        }
-
+        renderMarkers();
         renderDirections();
+    }
+
+    private boolean shouldShowCompass(){
+        return switch (config.DisplayRule) {
+            case COMPASS_HELD -> isCompassHeld();
+            case COMPASS_HOTBAR -> isCompassInHotbar();
+            case COMPASS_INVENTORY -> isCompassInInventory();
+            default -> true;
+        };
+    }
+
+    private boolean isCompassHeld(){
+        for (ItemStack hand : player.getHandSlots()) {
+            if (hand.is(Items.COMPASS)) return true;
+        }
+        return false;
+    }
+
+    private boolean isCompassInHotbar(){
+        return IntStream.range(0, Inventory.getSelectionSize()).anyMatch(i -> player.getInventory().items.get(i).is(Items.COMPASS)) || (isCompassHeld());
+    }
+
+    private boolean isCompassInInventory(){
+        if (player.getInventory().contains(compassItemStack)) return true;
+        return isCompassHeld();
+    }
+
+    private boolean shouldDrawBackground() {
+        return config.DrawBackground && shouldShowCompass();
+    }
+
+    private boolean shouldDrawMarkers() {
+        return config.ShowMarkers && shouldShowCompass();
+    }
+
+    private boolean shouldDrawDirections() {
+        return config.ShowDirections && shouldShowCompass();
     }
 
     private double yawToX(double yaw) {
@@ -64,12 +101,22 @@ public class CompassHudOverlay implements HudRenderCallback {
     }
 
     private void renderBackground() {
+        if (!shouldDrawBackground()) return;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         int y = font.lineHeight + 1 + config.CompassOffset;
         ctx.fill(compassStartX, y, compassEndX, y + 1, config.CompassBackgroundColor + alpha);
 
         RenderSystem.disableBlend();
+    }
+
+    private void renderMarkers() {
+        if (!shouldDrawMarkers()) return;
+        for (AtlasMarker marker : getSortedMarkers(level, player)) {
+            if (marker.getDistance() <= 2)
+                break;
+            renderMarker(marker);
+        }
     }
 
     private void drawTexture(ResourceLocation id, double x, int width, int height) {
@@ -107,6 +154,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     }
 
     private void renderDirections() {
+        if (!shouldDrawDirections()) return;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         int angle = 0;
