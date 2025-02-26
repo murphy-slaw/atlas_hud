@@ -8,11 +8,12 @@
 		"murphy_slaw"
 	],
 	"contact": {
+		"homepage": "",
 		"sources": "https://github.com/murphy-slaw/atlas_hud"
 	},
 	"license": "MIT",
 	"icon": "assets/atlas_hud/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
 		"main": [
             "net.funkpla.atlas_hud.AtlasHudMod"
@@ -34,5 +35,6 @@
 		"antique_atlas": ">=2.11.1"
 	},
 	"suggests": {
+		"modmenu": "*"
 	}
 }

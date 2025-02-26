@@ -145,12 +145,12 @@ publishMods {
 	}
 
 	modrinth {
-		projectId = ""
+		projectId = "F8LcMVkD"
 		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
 		minecraftVersions.add(project.minecraft_version)
 		requires("fabric-api")
 		requires("cloth-config")
-		requires("cardinal-components-api")
+		requires("antique-atlas-4")
 		optional("modmenu")
 	}
 }
