@@ -3,7 +3,6 @@ package net.funkpla.atlas_hud;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import me.shedaniel.math.Color;
 
 @Config(name = "atlas_hud")
 public class AtlasHudConfig implements ConfigData {
@@ -33,10 +32,10 @@ public class AtlasHudConfig implements ConfigData {
     public int MarkerScale = 100;
     @ConfigEntry.Category("Display")
     @ConfigEntry.ColorPicker
-    public int CompassTextColor = Color.ofRGB(1, 1, 1).getColor();
+    public int CompassTextColor = 0xffffff;
     @ConfigEntry.Category("Display")
     @ConfigEntry.ColorPicker
-    public int CompassBackgroundColor = Color.ofRGB(0, 0, 0).getColor();
+    public int CompassBackgroundColor = 0x000000;
 
     public enum CompassDisplayRule {
         ALWAYS, COMPASS_HELD, COMPASS_HOTBAR, COMPASS_INVENTORY
