@@ -1,22 +1,27 @@
 package net.funkpla.atlas_hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+
 import folk.sisby.antique_atlas.MarkerTexture;
 import folk.sisby.antique_atlas.WorldAtlasData;
 import folk.sisby.surveyor.landmark.Landmark;
+
 import me.shedaniel.autoconfig.AutoConfig;
+
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,8 +30,12 @@ import java.util.stream.IntStream;
 
 public class CompassHudOverlay implements HudRenderCallback {
 
-    private final AtlasHudConfig config = AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
-    private final ItemStack compassItemStack = new ItemStack(Items.COMPASS);
+    private static final TagKey<Item> COMPASS_ITEMS =
+            TagKey.create(
+                    BuiltInRegistries.ITEM.key(),
+                    new ResourceLocation(AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
+    private final AtlasHudConfig config =
+            AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
     private int centerX;
     private int compassWidth;
     private int compassStartX;
@@ -58,7 +67,7 @@ public class CompassHudOverlay implements HudRenderCallback {
         renderDirections();
     }
 
-    private boolean shouldShowCompass(){
+    private boolean shouldShowCompass() {
         return switch (config.DisplayRule) {
             case COMPASS_HELD -> isCompassHeld();
             case COMPASS_HOTBAR -> isCompassInHotbar();
@@ -67,19 +76,21 @@ public class CompassHudOverlay implements HudRenderCallback {
         };
     }
 
-    private boolean isCompassHeld(){
+    private boolean isCompassHeld() {
         for (ItemStack hand : player.getHandSlots()) {
-            if (hand.is(Items.COMPASS)) return true;
+            if (hand.is(COMPASS_ITEMS)) return true;
         }
         return false;
     }
 
-    private boolean isCompassInHotbar(){
-        return IntStream.range(0, Inventory.getSelectionSize()).anyMatch(i -> player.getInventory().items.get(i).is(Items.COMPASS)) || (isCompassHeld());
+    private boolean isCompassInHotbar() {
+        return IntStream.range(0, Inventory.getSelectionSize())
+                        .anyMatch(i -> player.getInventory().items.get(i).is(COMPASS_ITEMS))
+                || (isCompassHeld());
     }
 
-    private boolean isCompassInInventory(){
-        if (player.getInventory().contains(compassItemStack)) return true;
+    private boolean isCompassInInventory() {
+        if (player.getInventory().contains(COMPASS_ITEMS)) return true;
         return isCompassHeld();
     }
 
@@ -113,8 +124,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     private void renderMarkers() {
         if (!shouldDrawMarkers()) return;
         for (AtlasMarker marker : getSortedMarkers(level, player)) {
-            if (marker.getDistance() <= 2)
-                break;
+            if (marker.getDistance() <= 2) break;
             renderMarker(marker);
         }
     }
@@ -166,7 +176,13 @@ public class CompassHudOverlay implements HudRenderCallback {
                 x -= halfWidth;
                 var text = Component.literal(direction.abbrev());
 
-                ctx.drawString(font, text, (int) x, config.CompassOffset + 1, config.CompassTextColor + alpha, true);
+                ctx.drawString(
+                        font,
+                        text,
+                        (int) x,
+                        config.CompassOffset + 1,
+                        config.CompassTextColor + alpha,
+                        true);
             }
             angle += 45;
         }
@@ -174,13 +190,23 @@ public class CompassHudOverlay implements HudRenderCallback {
     }
 
     private List<AtlasMarker> getSortedMarkers(ClientLevel level, Player player) {
-        Map<Landmark<?>, MarkerTexture> landmarks = WorldAtlasData.getOrCreate(level).getEditableLandmarks();
-        return landmarks.keySet().stream().map(landmark -> new AtlasMarker(player, landmark, landmarks.get(landmark))).sorted(Comparator.comparingDouble(AtlasMarker::getDistance).reversed()).toList();
+        Map<Landmark<?>, MarkerTexture> landmarks =
+                WorldAtlasData.getOrCreate(level).getEditableLandmarks();
+        return landmarks.keySet().stream()
+                .map(landmark -> new AtlasMarker(player, landmark, landmarks.get(landmark)))
+                .sorted(Comparator.comparingDouble(AtlasMarker::getDistance).reversed())
+                .toList();
     }
 
     public enum Direction {
-        SOUTH("S"), SOUTHWEST("SW"), WEST("W"), NORTHWEST("NW"), NORTH("N"), NORTHEAST("NE"), EAST("E"), SOUTHEAST(
-                "SE");
+        SOUTH("S"),
+        SOUTHWEST("SW"),
+        WEST("W"),
+        NORTHWEST("NW"),
+        NORTH("N"),
+        NORTHEAST("NE"),
+        EAST("E"),
+        SOUTHEAST("SE");
 
         private final String abbrev;
 
@@ -193,4 +219,3 @@ public class CompassHudOverlay implements HudRenderCallback {
         }
     }
 }
-
