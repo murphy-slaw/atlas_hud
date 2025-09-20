@@ -7,8 +7,10 @@ import folk.sisby.antique_atlas.WorldAtlasData;
 import folk.sisby.surveyor.landmark.Landmark;
 
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.math.Color;
 
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,7 +35,8 @@ public class CompassHudOverlay implements HudRenderCallback {
     private static final TagKey<Item> COMPASS_ITEMS =
             TagKey.create(
                     BuiltInRegistries.ITEM.key(),
-                    new ResourceLocation(AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
+                    ResourceLocation.fromNamespaceAndPath(
+                            AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
     private final AtlasHudConfig config =
             AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
     private int centerX;
@@ -48,7 +51,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     private Player player;
 
     @Override
-    public void onHudRender(GuiGraphics ctx, float tickDelta) {
+    public void onHudRender(GuiGraphics ctx, DeltaTracker deltaTracker) {
         Minecraft client = Minecraft.getInstance();
         this.ctx = ctx;
         int windowWidth = ctx.guiWidth();
@@ -154,13 +157,23 @@ public class CompassHudOverlay implements HudRenderCallback {
             ctx.setColor(1, 1, 1, config.CompassOpacity / 100f);
             drawMarker(marker.getTexture(), markerX);
             if (marker.hasAccent()) {
-                float[] accent = marker.getColor().getTextureDiffuseColors();
-                ctx.setColor(accent[0], accent[1], accent[2], config.CompassOpacity / 100f);
+                Color accent = Color.ofTransparent(marker.getColor().getTextureDiffuseColor());
+                setColor(accent);
                 drawAccent(marker.getTexture(), markerX);
                 RenderSystem.setShaderColor(1, 1, 1, 1);
             }
             RenderSystem.defaultBlendFunc();
         }
+    }
+
+    private void setColor(Color color){
+        ctx.setColor(
+                color.getRed()/255f,
+                color.getGreen()/255f,
+                color.getBlue()/255f,
+                config.CompassOpacity / 100f
+        );
+
     }
 
     private void renderDirections() {
