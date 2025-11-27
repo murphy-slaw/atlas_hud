@@ -20,7 +20,7 @@ public class AtlasHudConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 30, max = 360)
     public int CompassArc = 240;
     @ConfigEntry.Category("Display")
-    @ConfigEntry.BoundedDiscrete(min = 50, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int CompassWidth = 90;
     @ConfigEntry.Category("Display")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
