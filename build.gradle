@@ -132,8 +132,8 @@ publishMods {
 	)
 
 	curseforge {
-		projectId = ""
-		projectSlug = "atlas_hud" // Required for discord webhook
+		projectId = "1392904"
+		//projectSlug = "atlas_hud" // Required for discord webhook
 		accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
 		minecraftVersions.add(project.minecraft_version)
 		javaVersions.add(JavaVersion.VERSION_17)
