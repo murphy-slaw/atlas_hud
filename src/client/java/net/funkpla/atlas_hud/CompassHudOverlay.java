@@ -157,7 +157,7 @@ public class CompassHudOverlay implements HudRenderCallback {
             ctx.setColor(1, 1, 1, config.CompassOpacity / 100f);
             drawMarker(marker.getTexture(), markerX);
             if (marker.hasAccent()) {
-                Color accent = Color.ofTransparent(marker.getColor().getTextureDiffuseColor());
+                Color accent = Color.ofTransparent(marker.getColor());
                 setColor(accent);
                 drawAccent(marker.getTexture(), markerX);
                 RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -203,8 +203,8 @@ public class CompassHudOverlay implements HudRenderCallback {
     }
 
     private List<AtlasMarker> getSortedMarkers(ClientLevel level, Player player) {
-        Map<Landmark<?>, MarkerTexture> landmarks =
-                WorldAtlasData.getOrCreate(level).getEditableLandmarks();
+        Map<Landmark, MarkerTexture> landmarks =
+                WorldAtlasData.getOrCreate(level).getEditableLandmarks(level);
         return landmarks.keySet().stream()
                 .map(landmark -> new AtlasMarker(player, landmark, landmarks.get(landmark)))
                 .sorted(Comparator.comparingDouble(AtlasMarker::getDistance).reversed())
