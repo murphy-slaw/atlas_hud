@@ -7,6 +7,7 @@ import folk.sisby.antique_atlas.WorldAtlasData;
 import folk.sisby.surveyor.landmark.Landmark;
 
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.math.Color;
 
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
@@ -154,7 +155,8 @@ public class CompassHudOverlay implements HudRenderCallback {
             ctx.setColor(1, 1, 1, config.CompassOpacity / 100f);
             drawMarker(marker.getTexture(), markerX);
             if (marker.hasAccent()) {
-                float[] accent = marker.getColor().getTextureDiffuseColors();
+                assert marker.getColor() != null;
+                float[] accent = colorToRGBA(Color.ofOpaque(marker.getColor()));
                 ctx.setColor(accent[0], accent[1], accent[2], config.CompassOpacity / 100f);
                 drawAccent(marker.getTexture(), markerX);
                 RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -188,10 +190,18 @@ public class CompassHudOverlay implements HudRenderCallback {
         }
         RenderSystem.disableBlend();
     }
+    private float[] colorToRGBA(Color color) {
+        return new float[] {
+                color.getRed() / 255f,
+                color.getGreen() / 255f,
+                color.getBlue() / 255f,
+                color.getAlpha() / 255f
+        };
+    }
 
     private List<AtlasMarker> getSortedMarkers(ClientLevel level, Player player) {
-        Map<Landmark<?>, MarkerTexture> landmarks =
-                WorldAtlasData.getOrCreate(level).getEditableLandmarks();
+        Map<Landmark, MarkerTexture> landmarks =
+                WorldAtlasData.getOrCreate(level).getEditableLandmarks(level);
         return landmarks.keySet().stream()
                 .map(landmark -> new AtlasMarker(player, landmark, landmarks.get(landmark)))
                 .sorted(Comparator.comparingDouble(AtlasMarker::getDistance).reversed())
