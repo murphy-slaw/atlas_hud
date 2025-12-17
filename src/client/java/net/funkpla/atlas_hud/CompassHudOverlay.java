@@ -45,6 +45,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     private int compassEndX;
     private int alpha;
     private float markerScale;
+    private float minMarkerScale;
     private GuiGraphics ctx;
     private Font font;
     private ClientLevel level;
@@ -61,6 +62,7 @@ public class CompassHudOverlay implements HudRenderCallback {
         compassEndX = centerX + (compassWidth / 2);
         alpha = config.CompassOpacity * 255 / 100 << 24;
         markerScale = config.MarkerScale / 100f;
+        minMarkerScale = config.MinMarkerScale / 100f;
         font = client.gui.getFont();
         player = client.player;
         level = client.level;
@@ -132,19 +134,25 @@ public class CompassHudOverlay implements HudRenderCallback {
         }
     }
 
-    private void drawTexture(ResourceLocation id, double x, int width, int height) {
-        int dw = (int) (width * markerScale);
-        int dh = (int) (height * markerScale);
-        int y = font.lineHeight - (dh / 2) + config.CompassOffset + 1;
-        ctx.blit(id, (int) x, y, 0f, 0f, dw, dh, dw, dh);
+    private float calcMarkerScale(AtlasMarker marker) {
+        float chunkDistance = (float) ((marker.getDistance() / 16f) + 1f);
+        return 1f / chunkDistance;
     }
 
-    private void drawMarker(MarkerTexture texture, double x) {
-        drawTexture(texture.id(), x, texture.textureWidth(), texture.textureHeight());
+    private void drawTexture(ResourceLocation id, double x, int width, int height, float scale) {
+        int drawWidth = (int) (width * scale);
+        int baseHeight = (int) (height * scale);
+        int drawHeight = baseHeight + (baseHeight % 2);
+        int y = font.lineHeight - (drawHeight / 2) + config.CompassOffset + 1;
+        ctx.blit(id, (int) x, y, 0f, 0f, drawWidth, drawHeight, drawWidth, drawHeight);
     }
 
-    private void drawAccent(MarkerTexture texture, double x) {
-        drawTexture(texture.accentId(), x, texture.textureWidth(), texture.textureHeight());
+    private void drawMarker(MarkerTexture texture, double x, float scale) {
+        drawTexture(texture.id(), x, texture.textureWidth(), texture.textureHeight(), scale);
+    }
+
+    private void drawAccent(MarkerTexture texture, double x, float scale) {
+        drawTexture(texture.accentId(), x, texture.textureWidth(), texture.textureHeight(), scale);
     }
 
     private void renderMarker(AtlasMarker marker) {
@@ -155,25 +163,24 @@ public class CompassHudOverlay implements HudRenderCallback {
             RenderSystem.defaultBlendFunc();
             markerX -= halfWidth;
             ctx.setColor(1, 1, 1, config.CompassOpacity / 100f);
-            drawMarker(marker.getTexture(), markerX);
+            float scale = Float.min(markerScale,Float.max(calcMarkerScale(marker), minMarkerScale));
+            drawMarker(marker.getTexture(), markerX, scale);
             if (marker.hasAccent()) {
                 Color accent = Color.ofTransparent(marker.getColor());
                 setColor(accent);
-                drawAccent(marker.getTexture(), markerX);
+                drawAccent(marker.getTexture(), markerX, scale);
                 RenderSystem.setShaderColor(1, 1, 1, 1);
             }
             RenderSystem.defaultBlendFunc();
         }
     }
 
-    private void setColor(Color color){
+    private void setColor(Color color) {
         ctx.setColor(
-                color.getRed()/255f,
-                color.getGreen()/255f,
-                color.getBlue()/255f,
-                config.CompassOpacity / 100f
-        );
-
+                color.getRed() / 255f,
+                color.getGreen() / 255f,
+                color.getBlue() / 255f,
+                config.CompassOpacity / 100f);
     }
 
     private void renderDirections() {

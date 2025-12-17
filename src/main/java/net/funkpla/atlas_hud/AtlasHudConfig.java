@@ -28,8 +28,11 @@ public class AtlasHudConfig implements ConfigData {
     @ConfigEntry.Category("Display")
     public int CompassOffset = 4;
     @ConfigEntry.Category("Display")
-    @ConfigEntry.BoundedDiscrete(min = 35, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int MarkerScale = 100;
+    @ConfigEntry.Category("Display")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int MinMarkerScale = 100;
     @ConfigEntry.Category("Display")
     @ConfigEntry.ColorPicker
     public int CompassTextColor = 0xffffff;

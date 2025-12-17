@@ -8,7 +8,8 @@
     "text.autoconfig.atlas_hud.option.CompassWidth": "Compass width (% of screen width)",
     "text.autoconfig.atlas_hud.option.CompassOpacity": "Compass opacity (%)",
     "text.autoconfig.atlas_hud.option.CompassOffset": "Offset from top of screen (pixels)",
-    "text.autoconfig.atlas_hud.option.MarkerScale": "Antique Atlas marker scale (%)",
+    "text.autoconfig.atlas_hud.option.MarkerScale": "Maximum marker scale (%)",
+    "text.autoconfig.atlas_hud.option.MinMarkerScale": "Minimum marker scale (%)",
     "text.autoconfig.atlas_hud.option.CompassTextColor": "Text color",
     "text.autoconfig.atlas_hud.option.CompassBackgroundColor": "Decoration color"
 }
