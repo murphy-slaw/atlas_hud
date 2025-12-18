@@ -122,48 +122,54 @@ public class CompassHudOverlay implements HudRenderCallback {
         RenderSystem.disableBlend();
     }
 
-    private void renderMarkers() {
-        if (!shouldDrawMarkers()) return;
-        for (AtlasMarker marker : getSortedMarkers(level, player)) {
-            if (marker.getDistance() <= 2) break;
-            renderMarker(marker);
-        }
+  private void renderMarkers() {
+    if (!shouldDrawMarkers()) return;
+    for (AtlasMarker marker : getSortedMarkers(level, player)) {
+      if (marker.getDistance() <= 2) break;
+      renderMarker(marker);
     }
+  }
 
-    private void drawTexture(ResourceLocation id, double x, int width, int height) {
-        int dw = (int) (width * markerScale);
-        int dh = (int) (height * markerScale);
-        int y = font.lineHeight - (dh / 2) + config.CompassOffset + 1;
-        ctx.blit(id, (int) x, y, 0f, 0f, dw, dh, dw, dh);
-    }
+  private float calcMarkerScale(AtlasMarker marker) {
+    float chunkDistance = (float) ((marker.getDistance() / 64f) + 1f);
+    return 1f / chunkDistance;
+  }
 
-    private void drawMarker(MarkerTexture texture, double x) {
-        drawTexture(texture.id(), x, texture.textureWidth(), texture.textureHeight());
-    }
+  private void drawTexture(ResourceLocation id, double x, int width, int height, float scale) {
+    int drawWidth = (int) (width * scale);
+    int baseHeight = (int) (height * scale);
+    int drawHeight = baseHeight + (baseHeight % 2);
+    int y = font.lineHeight - (drawHeight / 2) + calcYOffset() + 1;
+    ctx.blit(id, (int) x, y, 0f, 0f, drawWidth, drawHeight, drawWidth, drawHeight);
+  }
 
-    private void drawAccent(MarkerTexture texture, double x) {
-        drawTexture(texture.accentId(), x, texture.textureWidth(), texture.textureHeight());
-    }
+  private void drawMarker(MarkerTexture texture, double x, float scale) {
+    drawTexture(texture.id(), x, texture.textureWidth(), texture.textureHeight(), scale);
+  }
 
-    private void renderMarker(AtlasMarker marker) {
-        double markerX = centerX + yawToX(marker.getYaw());
-        double halfWidth = marker.getWidth() / 2.0d;
-        if (markerX - halfWidth > compassStartX && markerX + halfWidth < compassEndX) {
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            markerX -= halfWidth;
-            ctx.setColor(1, 1, 1, config.CompassOpacity / 100f);
-            drawMarker(marker.getTexture(), markerX);
-            if (marker.hasAccent()) {
-                assert marker.getColor() != null;
-                float[] accent = colorToRGBA(Color.ofOpaque(marker.getColor()));
-                ctx.setColor(accent[0], accent[1], accent[2], config.CompassOpacity / 100f);
-                drawAccent(marker.getTexture(), markerX);
-                RenderSystem.setShaderColor(1, 1, 1, 1);
-            }
-            RenderSystem.defaultBlendFunc();
-        }
+  private void drawAccent(MarkerTexture texture, double x, float scale) {
+    drawTexture(texture.accentId(), x, texture.textureWidth(), texture.textureHeight(), scale);
+  }
+
+  private void renderMarker(AtlasMarker marker) {
+    double markerX = centerX + yawToX(marker.getYaw());
+    double halfWidth = marker.getWidth() / 2.0d;
+    if (markerX - halfWidth > compassStartX && markerX + halfWidth < compassEndX) {
+      RenderSystem.enableBlend();
+      RenderSystem.defaultBlendFunc();
+      markerX -= halfWidth;
+      ctx.setColor(1, 1, 1, config.CompassOpacity / 100f);
+      float scale = Float.min(markerScale, Float.max(calcMarkerScale(marker), minMarkerScale));
+      drawMarker(marker.getTexture(), markerX, scale);
+      if (marker.hasAccent()) {
+        Color accent = Color.ofTransparent(marker.getColor());
+        setColor(accent);
+        drawAccent(marker.getTexture(), markerX, scale);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+      }
+      RenderSystem.defaultBlendFunc();
     }
+  }
 
     private void renderDirections() {
         if (!shouldDrawDirections()) return;
@@ -199,14 +205,14 @@ public class CompassHudOverlay implements HudRenderCallback {
         };
     }
 
-    private List<AtlasMarker> getSortedMarkers(ClientLevel level, Player player) {
-        Map<Landmark, MarkerTexture> landmarks =
-                WorldAtlasData.getOrCreate(level).getEditableLandmarks(level);
-        return landmarks.keySet().stream()
-                .map(landmark -> new AtlasMarker(player, landmark, landmarks.get(landmark)))
-                .sorted(Comparator.comparingDouble(AtlasMarker::getDistance).reversed())
-                .toList();
-    }
+  private List<AtlasMarker> getSortedMarkers(ClientLevel level, Player player) {
+    Map<Landmark, MarkerTexture> landmarks =
+        WorldAtlasData.getOrCreate(level).getEditableLandmarks(level);
+    return landmarks.keySet().stream()
+        .map(landmark -> new AtlasMarker(player, landmark, landmarks.get(landmark)))
+        .sorted(Comparator.comparingDouble(AtlasMarker::getDistance).reversed())
+        .toList();
+  }
 
     public enum Direction {
         SOUTH("S"),
