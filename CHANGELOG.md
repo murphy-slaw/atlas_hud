@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] 2025-12-17
+
+### Fixed
+- HUD now moves out of the way of boss bars.
+
+### Added
+- New config value: MinMarkerScale. If MinMarkerScale is smaller than MarkerScale, markers will get smaller the further
+away they are.
+- Drop shadow for direction text can be toggled off.
+- Compass decorations are now textures. To customize, create a resource pack that adds the following textures:
+  - `atlas_hud/textures/left.png`
+  - `atlas_hud/textures/decoration.png`
+  - `atlas_hud/textures/right.png`
+
 ## [1.3.0] 2025-12-15
 
 ### Changed
