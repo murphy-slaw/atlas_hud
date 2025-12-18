@@ -34,6 +34,8 @@ public class AtlasHudConfig implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int MinMarkerScale = 100;
     @ConfigEntry.Category("Display")
+    public boolean TextDropShadow = true;
+    @ConfigEntry.Category("Display")
     @ConfigEntry.ColorPicker
     public int CompassTextColor = 0xffffff;
     @ConfigEntry.Category("Display")

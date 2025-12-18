@@ -54,6 +54,12 @@ repositories {
 
 loom {
     splitEnvironmentSourceSets()
+    var accessWidenerFile = file("src/main/resources/${archives_base_name}.accesswidener")
+    if (accessWidenerFile.exists()) {
+        accessWidenerPath.set(accessWidenerFile)
+    } else {
+        println "No access widener exists!"
+    }
 
 	mods {
 		"atlas_hud" {
