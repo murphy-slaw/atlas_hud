@@ -147,7 +147,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     RenderSystem.defaultBlendFunc();
     Color bgColor = Color.ofOpaque(config.CompassBackgroundColor);
     setColor(bgColor);
-    int y = font.lineHeight - (DECORATION_HEIGHT / 2) + calcYOffset();
+    int y = font.lineHeight - (DECORATION_HEIGHT / 2) + config.CompassBackgroundOffset + calcYOffset();
     int endcap_width = 10;
     int width = compassEndX - compassStartX - (2 * endcap_width);
     ctx.blit(
