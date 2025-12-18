@@ -12,5 +12,6 @@
     "text.autoconfig.atlas_hud.option.MinMarkerScale": "Minimum marker scale (%)",
     "text.autoconfig.atlas_hud.option.TextDropShadow": "Text drop shadow",
     "text.autoconfig.atlas_hud.option.CompassTextColor": "Text color",
-    "text.autoconfig.atlas_hud.option.CompassBackgroundColor": "Decoration color"
+    "text.autoconfig.atlas_hud.option.CompassBackgroundColor": "Decoration color",
+    "text.autoconfig.atlas_hud.option.CompassBackgroundOffset": "Decoration offset (pixels)"
 }
