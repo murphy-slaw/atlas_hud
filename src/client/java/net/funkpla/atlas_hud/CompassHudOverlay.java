@@ -1,18 +1,22 @@
 package net.funkpla.atlas_hud;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import static net.funkpla.atlas_hud.AtlasHudMod.MOD_ID;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import folk.sisby.antique_atlas.MarkerTexture;
 import folk.sisby.antique_atlas.WorldAtlasData;
 import folk.sisby.surveyor.landmark.Landmark;
-
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.math.Color;
-
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -24,103 +28,158 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
-
 public class CompassHudOverlay implements HudRenderCallback {
+  private static final int BASE_BOSSBAR_OFFSET = 12;
+  private static final int BOSSBAR_HEIGHT = 19;
+  private static final ResourceLocation DECORATION_TEXTURE =
+      new ResourceLocation(MOD_ID, "textures/gui/decoration.png");
+  private static final ResourceLocation DECORATION_LEFT_TEXTURE =
+      new ResourceLocation(MOD_ID, "textures/gui/left.png");
+  private static final ResourceLocation DECORATION_RIGHT_TEXTURE =
+      new ResourceLocation(MOD_ID, "textures/gui/right.png");
+  private static final int DECORATION_HEIGHT = 5;
 
-    private static final TagKey<Item> COMPASS_ITEMS =
-            TagKey.create(
-                    BuiltInRegistries.ITEM.key(),
-                    new ResourceLocation(AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
-    private final AtlasHudConfig config =
-            AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
-    private int centerX;
-    private int compassWidth;
-    private int compassStartX;
-    private int compassEndX;
-    private int alpha;
-    private float markerScale;
-    private GuiGraphics ctx;
-    private Font font;
-    private ClientLevel level;
-    private Player player;
+  private static final TagKey<Item> COMPASS_ITEMS =
+      TagKey.create(
+          BuiltInRegistries.ITEM.key(), new ResourceLocation(MOD_ID, "shows_compass_ribbon"));
+  private final AtlasHudConfig config =
+      AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
+  private int centerX;
+  private int compassWidth;
+  private int compassStartX;
+  private int compassEndX;
+  private int bossYOffset;
+  private int alpha;
+  private float markerScale;
+  private float minMarkerScale;
+  private GuiGraphics ctx;
+  private Font font;
+  private ClientLevel level;
+  private Player player;
 
-    @Override
-    public void onHudRender(GuiGraphics ctx, float tickDelta) {
-        Minecraft client = Minecraft.getInstance();
-        this.ctx = ctx;
-        int windowWidth = ctx.guiWidth();
-        centerX = windowWidth / 2;
-        compassWidth = (int) (windowWidth * (config.CompassWidth / 100d));
-        compassStartX = centerX - (compassWidth / 2);
-        compassEndX = centerX + (compassWidth / 2);
-        alpha = config.CompassOpacity * 255 / 100 << 24;
-        markerScale = config.MarkerScale / 100f;
-        font = client.gui.getFont();
-        player = client.player;
-        level = client.level;
+  @Override
+  public void onHudRender(GuiGraphics ctx, float tickDelta) {
+    Minecraft client = Minecraft.getInstance();
+    this.ctx = ctx;
+    int windowWidth = ctx.guiWidth();
+    centerX = windowWidth / 2;
+    compassWidth = (int) (windowWidth * (config.CompassWidth / 100d));
+    compassStartX = centerX - (compassWidth / 2);
+    compassEndX = centerX + (compassWidth / 2);
+    alpha = config.CompassOpacity * 255 / 100 << 24;
+    markerScale = config.MarkerScale / 100f;
+    minMarkerScale = config.MinMarkerScale / 100f;
+    font = client.gui.getFont();
+    player = client.player;
+    level = client.level;
+    BossHealthOverlay bossOverlay = client.gui.getBossOverlay();
 
-        renderBackground();
-        renderMarkers();
-        renderDirections();
+    bossYOffset = 0;
+    if (!bossOverlay.events.isEmpty()) {
+      bossYOffset = BASE_BOSSBAR_OFFSET + 2;
+      for (int i = 1; i < bossOverlay.events.size(); i++) {
+        bossYOffset += BOSSBAR_HEIGHT;
+      }
     }
 
-    private boolean shouldShowCompass() {
-        return switch (config.DisplayRule) {
-            case COMPASS_HELD -> isCompassHeld();
-            case COMPASS_HOTBAR -> isCompassInHotbar();
-            case COMPASS_INVENTORY -> isCompassInInventory();
-            default -> true;
-        };
-    }
+    renderBackground();
+    renderMarkers();
+    renderDirections();
+  }
 
-    private boolean isCompassHeld() {
-        for (ItemStack hand : player.getHandSlots()) {
-            if (hand.is(COMPASS_ITEMS)) return true;
-        }
-        return false;
-    }
+  private boolean shouldShowCompass() {
+    return switch (config.DisplayRule) {
+      case COMPASS_HELD -> isCompassHeld();
+      case COMPASS_HOTBAR -> isCompassInHotbar();
+      case COMPASS_INVENTORY -> isCompassInInventory();
+      default -> true;
+    };
+  }
 
-    private boolean isCompassInHotbar() {
-        return IntStream.range(0, Inventory.getSelectionSize())
-                        .anyMatch(i -> player.getInventory().items.get(i).is(COMPASS_ITEMS))
-                || (isCompassHeld());
+  private boolean isCompassHeld() {
+    for (ItemStack hand : player.getHandSlots()) {
+      if (hand.is(COMPASS_ITEMS)) return true;
     }
+    return false;
+  }
 
-    private boolean isCompassInInventory() {
-        if (player.getInventory().contains(COMPASS_ITEMS)) return true;
-        return isCompassHeld();
+  private boolean isCompassInHotbar() {
+    return IntStream.range(0, Inventory.getSelectionSize())
+            .anyMatch(i -> player.getInventory().items.get(i).is(COMPASS_ITEMS))
+        || (isCompassHeld());
+  }
+
+  private boolean isCompassInInventory() {
+    if (player.getInventory().contains(COMPASS_ITEMS)) return true;
+    return isCompassHeld();
+  }
+
+  private boolean shouldDrawBackground() {
+    return config.DrawBackground && shouldShowCompass();
+  }
+
+  private boolean shouldDrawMarkers() {
+    return config.ShowMarkers && shouldShowCompass();
+  }
+
+  private boolean shouldDrawDirections() {
+    return config.ShowDirections && shouldShowCompass();
+  }
+
+  private double yawToX(double yaw) {
+    double ratio = (double) compassWidth / config.CompassArc;
+    return yaw * ratio;
+  }
+
+  private int calcYOffset() {
+    if (config.CompassOffset <= bossYOffset) {
+      return config.CompassOffset + bossYOffset;
     }
+    return config.CompassOffset;
+  }
 
-    private boolean shouldDrawBackground() {
-        return config.DrawBackground && shouldShowCompass();
-    }
-
-    private boolean shouldDrawMarkers() {
-        return config.ShowMarkers && shouldShowCompass();
-    }
-
-    private boolean shouldDrawDirections() {
-        return config.ShowDirections && shouldShowCompass();
-    }
-
-    private double yawToX(double yaw) {
-        double ratio = (double) compassWidth / config.CompassArc;
-        return yaw * ratio;
-    }
-
-    private void renderBackground() {
-        if (!shouldDrawBackground()) return;
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        int y = font.lineHeight + 1 + config.CompassOffset;
-        ctx.fill(compassStartX, y, compassEndX, y + 1, config.CompassBackgroundColor + alpha);
-
-        RenderSystem.disableBlend();
-    }
+  private void renderBackground() {
+    if (!shouldDrawBackground()) return;
+    RenderSystem.enableBlend();
+    RenderSystem.defaultBlendFunc();
+    Color bgColor = Color.ofOpaque(config.CompassBackgroundColor);
+    setColor(bgColor);
+    int y = font.lineHeight - (DECORATION_HEIGHT / 2) + calcYOffset();
+    int endcap_width = 10;
+    int width = compassEndX - compassStartX - (2 * endcap_width);
+    ctx.blit(
+        DECORATION_LEFT_TEXTURE,
+        compassStartX,
+        y,
+        0f,
+        0f,
+        endcap_width,
+        DECORATION_HEIGHT,
+        endcap_width,
+        DECORATION_HEIGHT);
+    ctx.blit(
+        DECORATION_TEXTURE,
+        compassStartX + endcap_width,
+        y,
+        0f,
+        0f,
+        width,
+        DECORATION_HEIGHT,
+        width,
+        DECORATION_HEIGHT);
+    ctx.blit(
+        DECORATION_RIGHT_TEXTURE,
+        compassStartX + width + endcap_width,
+        y,
+        0f,
+        0f,
+        endcap_width,
+        DECORATION_HEIGHT,
+        endcap_width,
+        DECORATION_HEIGHT);
+    RenderSystem.setShaderColor(1, 1, 1, 1);
+    RenderSystem.disableBlend();
+  }
 
   private void renderMarkers() {
     if (!shouldDrawMarkers()) return;
@@ -171,39 +230,34 @@ public class CompassHudOverlay implements HudRenderCallback {
     }
   }
 
-    private void renderDirections() {
-        if (!shouldDrawDirections()) return;
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        int angle = 0;
-        for (Direction direction : Direction.values()) {
-            double yaw = Mth.wrapDegrees((double) angle - player.getYRot());
-            double x = centerX + yawToX(yaw);
-            double halfWidth = font.width(direction.abbrev) / 2.0;
-            if (x - halfWidth > compassStartX && x + halfWidth < compassEndX) {
-                x -= halfWidth;
-                var text = Component.literal(direction.abbrev());
+  private void setColor(Color color) {
+    ctx.setColor(
+        color.getRed() / 255f,
+        color.getGreen() / 255f,
+        color.getBlue() / 255f,
+        config.CompassOpacity / 100f);
+  }
 
-                ctx.drawString(
-                        font,
-                        text,
-                        (int) x,
-                        config.CompassOffset + 1,
-                        config.CompassTextColor + alpha,
-                        true);
-            }
-            angle += 45;
-        }
-        RenderSystem.disableBlend();
+  private void renderDirections() {
+    if (!shouldDrawDirections()) return;
+    RenderSystem.enableBlend();
+    RenderSystem.defaultBlendFunc();
+    int angle = 0;
+    for (Direction direction : Direction.values()) {
+      double yaw = Mth.wrapDegrees((double) angle - player.getYRot());
+      double x = centerX + yawToX(yaw);
+      double halfWidth = font.width(direction.abbrev) / 2.0;
+      if (x - halfWidth > compassStartX && x + halfWidth < compassEndX) {
+        x -= halfWidth;
+        var text = Component.literal(direction.abbrev());
+
+        ctx.drawString(
+            font, text, (int) x, calcYOffset() + 1, config.CompassTextColor + alpha, config.TextDropShadow);
+      }
+      angle += 45;
     }
-    private float[] colorToRGBA(Color color) {
-        return new float[] {
-                color.getRed() / 255f,
-                color.getGreen() / 255f,
-                color.getBlue() / 255f,
-                color.getAlpha() / 255f
-        };
-    }
+    RenderSystem.disableBlend();
+  }
 
   private List<AtlasMarker> getSortedMarkers(ClientLevel level, Player player) {
     Map<Landmark, MarkerTexture> landmarks =
@@ -214,24 +268,24 @@ public class CompassHudOverlay implements HudRenderCallback {
         .toList();
   }
 
-    public enum Direction {
-        SOUTH("S"),
-        SOUTHWEST("SW"),
-        WEST("W"),
-        NORTHWEST("NW"),
-        NORTH("N"),
-        NORTHEAST("NE"),
-        EAST("E"),
-        SOUTHEAST("SE");
+  public enum Direction {
+    SOUTH("S"),
+    SOUTHWEST("SW"),
+    WEST("W"),
+    NORTHWEST("NW"),
+    NORTH("N"),
+    NORTHEAST("NE"),
+    EAST("E"),
+    SOUTHEAST("SE");
 
-        private final String abbrev;
+    private final String abbrev;
 
-        Direction(String abbrev) {
-            this.abbrev = abbrev;
-        }
-
-        public String abbrev() {
-            return abbrev;
-        }
+    Direction(String abbrev) {
+      this.abbrev = abbrev;
     }
+
+    public String abbrev() {
+      return abbrev;
+    }
+  }
 }
