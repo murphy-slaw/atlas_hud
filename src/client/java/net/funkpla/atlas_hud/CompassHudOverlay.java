@@ -144,7 +144,8 @@ public class CompassHudOverlay implements HudRenderCallback {
     RenderSystem.defaultBlendFunc();
     Color bgColor = Color.ofOpaque(config.CompassBackgroundColor);
     setColor(bgColor);
-    int y = font.lineHeight - (DECORATION_HEIGHT / 2) + config.CompassBackgroundOffset + calcYOffset();
+    int y =
+        font.lineHeight - (DECORATION_HEIGHT / 2) + config.CompassBackgroundOffset + calcYOffset();
     int endcap_width = 10;
     int width = compassEndX - compassStartX - (2 * endcap_width);
     ctx.blit(
@@ -195,7 +196,8 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private void drawTexture(ResourceLocation id, double x, int width, int height, float scale) {
-    int drawWidth = (int) (width * scale);
+    int baseWidth = (int) (height * scale);
+    int drawWidth = baseWidth + (baseWidth % 2);
     int baseHeight = (int) (height * scale);
     int drawHeight = baseHeight + (baseHeight % 2);
     int y = font.lineHeight - (drawHeight / 2) + calcYOffset() + 1;
@@ -252,7 +254,12 @@ public class CompassHudOverlay implements HudRenderCallback {
         var text = Component.literal(direction.abbrev());
 
         ctx.drawString(
-            font, text, (int) x, calcYOffset() + 1, config.CompassTextColor + alpha, config.TextDropShadow);
+            font,
+            text,
+            (int) x,
+            calcYOffset() + 1,
+            config.CompassTextColor + alpha,
+            config.TextDropShadow);
       }
       angle += 45;
     }
