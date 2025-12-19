@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Add missing translation strings.
+- Fixed marker scale correction not being applied to width.
 
 ### Added
 - Configurable Y offset for compass decorations.
