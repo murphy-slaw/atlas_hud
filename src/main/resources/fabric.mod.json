@@ -1,41 +1,43 @@
 {
-	"schemaVersion": 1,
-	"id": "atlas_hud",
-	"version": "${version}",
-	"name": "Antique Atlas Compass HUD",
-	"description": "Displays a compass ribbon in the HUD with Antique Atlas 4 map markers.",
-	"authors": [
-		"murphy_slaw"
-	],
-	"contact": {
-		"homepage": "",
-		"sources": "https://github.com/murphy-slaw/atlas_hud"
-	},
-	"license": "MIT",
-	"icon": "assets/atlas_hud/icon.png",
-	"environment": "client",
+    "schemaVersion": 1,
+    "id": "atlas_hud",
+    "version": "${version}",
+    "name": "Antique Atlas Compass HUD",
+    "description": "Displays a compass ribbon in the HUD with Antique Atlas 4 map markers.",
+    "authors": [
+        "murphy_slaw"
+    ],
+    "contact": {
+        "homepage": "",
+        "sources": "https://github.com/murphy-slaw/atlas_hud"
+    },
+    "license": "MIT",
+    "icon": "assets/atlas_hud/icon.png",
+    "environment": "client",
     "accessWidener": "atlas_hud.accesswidener",
-	"entrypoints": {
-		"main": [
+    "entrypoints": {
+        "main": [
             "net.funkpla.atlas_hud.AtlasHudMod"
-		],
-		"client": [
-			"net.funkpla.atlas_hud.AtlasHudClient"
-		],
-		"modmenu": [
-			"net.funkpla.atlas_hud.ModMenuConfig"
-		]
-	},
-	"mixins": [
-	],
-	"depends": {
-		"fabricloader": ">=0.17.2",
-		"minecraft": "~1.21.1",
-		"java": ">=21",
-		"fabric-api": "*",
-		"antique_atlas": ">=2.11.2"
-	},
-	"suggests": {
-		"modmenu": "*"
-	}
+        ],
+        "client": [
+            "net.funkpla.atlas_hud.AtlasHudClient"
+        ],
+        "modmenu": [
+            "net.funkpla.atlas_hud.ModMenuConfig"
+        ]
+    },
+    "mixins": [
+    ],
+    "depends": {
+        "fabricloader": ">=0.17.2",
+        "minecraft": "~1.21.1",
+        "java": ">=21",
+        "fabric-api": "*",
+        "surveyor": ">=1.0.3"
+    },
+    "suggests": {
+        "modmenu": "*",
+        "antique_atlas": ">=3.0.0",
+        "hoofprint": ">=1.1.0"
+    }
 }
