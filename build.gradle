@@ -26,6 +26,7 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+    mavenCentral()
 	maven {
 		name = 'ParchmentMC'
 		url = 'https://maven.parchmentmc.org'
@@ -63,9 +64,9 @@ loom {
 
 	mods {
 		"atlas_hud" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
 	}
 
 }
@@ -77,6 +78,8 @@ dependencies {
 		officialMojangMappings()
 		parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip")
 	}
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
@@ -86,8 +89,9 @@ dependencies {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 	modApi("com.terraformersmc:modmenu:${project.modmenu_version}")
-	modImplementation "maven.modrinth:antique-atlas-4:${project.antique_atlas_version}"
 	modImplementation "folk.sisby:surveyor:${project.surveyor_version}"
+    modCompileOnly "maven.modrinth:antique-atlas-4:${project.antique_atlas_version}"
+    modCompileOnly "maven.modrinth:hoofprint:${project.hoofprint_version}"
 
 }
 
