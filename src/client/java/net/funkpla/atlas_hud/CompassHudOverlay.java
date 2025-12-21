@@ -278,7 +278,8 @@ public class CompassHudOverlay implements HudRenderCallback {
 
   private void renderDirections() {
     if (!shouldDrawDirections()) return;
-    Color textColor = Color.ofTransparent(config.CompassTextColor);
+    Color textColor = Color.ofOpaque(config.CompassTextColor);
+    RenderSystem.setShaderColor(1,1,1,alpha);
     int angle = 0;
     for (Direction direction : Direction.values()) {
       double yaw = Mth.wrapDegrees((double) angle - player.getYRot());
@@ -288,18 +289,7 @@ public class CompassHudOverlay implements HudRenderCallback {
         x -= halfWidth;
         var text = Component.literal(direction.abbrev());
 
-        ctx.drawString(
-            font,
-            text,
-            (int) x,
-            calcYOffset() + 1,
-            Color.ofRGBA(
-                    textColor.getRed(),
-                    textColor.getBlue(),
-                    textColor.getGreen(),
-                    (int) (alpha * 255))
-                .getColor(),
-            config.TextDropShadow);
+        ctx.drawString(font, text, (int) x, calcYOffset() + 1, textColor.getColor(), config.TextDropShadow);
       }
       angle += 45;
     }
