@@ -63,7 +63,7 @@ loom {
     }
 
 	mods {
-		"atlas_hud" {
+		"dead_reckoning" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
@@ -151,6 +151,7 @@ publishMods {
 		serverRequired = true
 		requires("fabric-api")
 		requires("cloth-config")
+        requires("surveyor-map-framework")
 		optional("modmenu")
 	}
 
@@ -160,7 +161,7 @@ publishMods {
 		minecraftVersions.add(project.minecraft_version)
 		requires("fabric-api")
 		requires("cloth-config")
-		requires("antique-atlas-4")
+		requires("surveyor")
 		optional("modmenu")
 	}
 }
