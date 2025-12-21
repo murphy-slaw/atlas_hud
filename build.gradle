@@ -151,7 +151,7 @@ publishMods {
 		serverRequired = true
 		requires("fabric-api")
 		requires("cloth-config")
-        requires("surveyor")
+        requires("surveyor-map-framework")
 		optional("modmenu")
 	}
 
