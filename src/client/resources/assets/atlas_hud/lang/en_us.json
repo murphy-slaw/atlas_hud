@@ -13,5 +13,6 @@
     "text.autoconfig.atlas_hud.option.TextDropShadow": "Text drop shadow",
     "text.autoconfig.atlas_hud.option.CompassTextColor": "Text color",
     "text.autoconfig.atlas_hud.option.CompassBackgroundColor": "Decoration color",
-    "text.autoconfig.atlas_hud.option.CompassBackgroundOffset": "Decoration offset (pixels)"
+    "text.autoconfig.atlas_hud.option.CompassBackgroundOffset": "Decoration Y offset (pixels)",
+    "text.autoconfig.atlas_hud.option.CompassMarkerOffset": "Marker Y offset (pixels)"
 }
