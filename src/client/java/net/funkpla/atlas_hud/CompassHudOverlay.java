@@ -233,7 +233,7 @@ public class CompassHudOverlay implements HudRenderCallback {
         font.lineHeight
             - (texture.height() / 2f * scale)
             + calcYOffset()
-            + config.CompassBackgroundOffset
+            + config.CompassMarkerOffset
             + 1;
     ctx.pose().pushPose();
     ctx.pose().translate(drawX, yOffset, z * 16);

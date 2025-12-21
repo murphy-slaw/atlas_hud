@@ -43,6 +43,8 @@ public class AtlasHudConfig implements ConfigData {
     public int CompassBackgroundColor = 0x000000;
     @ConfigEntry.Category("Display")
     public int CompassBackgroundOffset = 0;
+    @ConfigEntry.Category("Display")
+    public int CompassMarkerOffset = 0;
 
     public enum CompassDisplayRule {
         ALWAYS, COMPASS_HELD, COMPASS_HOTBAR, COMPASS_INVENTORY
