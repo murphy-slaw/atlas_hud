@@ -2,8 +2,8 @@
     "schemaVersion": 1,
     "id": "atlas_hud",
     "version": "${version}",
-    "name": "Antique Atlas Compass HUD",
-    "description": "Displays a compass ribbon in the HUD with Antique Atlas 4 map markers.",
+    "name": "Dead Reckoning",
+    "description": "Displays a compass ribbon in the HUD with Surveyor map markers.",
     "authors": [
         "murphy_slaw"
     ],
