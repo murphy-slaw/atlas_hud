@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] 2025-12-21
+
+### Fixed
+- Fixed text color rendering.
+- Updated jar name and a few other straggling mentions of **Antique Atlas Compass HUD**
+### Added
+- Now the offset for markers can be set independently from the background offset (for better handling of custom 
+  background textures).
+
 ## [1.5.0] 2025-12-20
 
 ### Changed
