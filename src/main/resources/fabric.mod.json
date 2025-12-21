@@ -14,7 +14,7 @@
     "license": "MIT",
     "icon": "assets/atlas_hud/icon.png",
     "environment": "client",
-    "accessWidener": "atlas_hud.accesswidener",
+    "accessWidener": "dead_reckoning.accesswidener",
     "entrypoints": {
         "main": [
             "net.funkpla.atlas_hud.AtlasHudMod"
