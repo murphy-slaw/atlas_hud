@@ -1,9 +1,23 @@
-# Changelog for [Antique Atlas Compass HUD](https://github.com/murphy-slaw/atlas_hud)
+# Changelog for [Dead Reckoning](https://github.com/murphy-slaw/atlas_hud)
+(Formerly __Antique Atlas Compass HUD__)
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.5.0] 2025-12-20
+
+### Changed
+- Now should work with any __Surveyor__ based map mod, including __Antique Atlas 4__ and __Hoofprint__ (or even standalone Surveyor if you only want waypoints.)
+- Renamed! Now it's __Dead Reckoning__, since it doesn't strictly require AA4.
+- Draws Surveyor landmarks with a STACK component as items.
+- Uses Antique Atlas markers if it's installed.
+- Falls back to simple colored banner markers if no other markers are applicable.
+
+### Fixed
+- Now only reloads the list of landmarks if there's a Surveyor update event.
+- Handles overlapping markers more gracefully.
 
 ## [1.4.1] 2025-12-17
 
