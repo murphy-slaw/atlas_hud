@@ -14,5 +14,8 @@
     "text.autoconfig.atlas_hud.option.CompassTextColor": "Text color",
     "text.autoconfig.atlas_hud.option.CompassBackgroundColor": "Decoration color",
     "text.autoconfig.atlas_hud.option.CompassBackgroundOffset": "Decoration Y offset (pixels)",
-    "text.autoconfig.atlas_hud.option.CompassMarkerOffset": "Marker Y offset (pixels)"
+    "text.autoconfig.atlas_hud.option.CompassMarkerOffset": "Marker Y offset (pixels)",
+    "atlas_hud.toggled_hud_visibility": "Toggled compass visibliity %s.",
+    "key.atlas_hud.toggle": "Toggle Compass Visibility",
+    "category.atlas_hud.general": "Dead Reckoning"
 }
