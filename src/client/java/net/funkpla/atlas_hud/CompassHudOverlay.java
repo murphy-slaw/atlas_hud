@@ -25,6 +25,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class CompassHudOverlay implements HudRenderCallback {
+  private static final int ITEM_Z_OFFSET = 150;
   private static final int BASE_BOSSBAR_OFFSET = 12;
   private static final int BOSSBAR_HEIGHT = 19;
   private static final ResourceLocation DECORATION_TEXTURE =
@@ -43,10 +44,8 @@ public class CompassHudOverlay implements HudRenderCallback {
   @Getter private int compassWidth;
   @Getter private int compassStartX;
   @Getter private int compassEndX;
-  private float alpha;
+  private int opacity;
   private int bossYOffset;
-  private float markerScale;
-  private float minMarkerScale;
   private GuiGraphics ctx;
   private Font font;
   private Player player;
@@ -60,9 +59,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     compassWidth = (int) (windowWidth * (config.CompassWidth / 100d));
     compassStartX = centerX - (compassWidth / 2);
     compassEndX = centerX + (compassWidth / 2);
-    alpha = config.CompassOpacity / 100f;
-    markerScale = config.MarkerScale / 100f;
-    minMarkerScale = config.MinMarkerScale / 100f;
+    opacity = (int)(config.CompassOpacity / 100f)*255;
     font = client.gui.getFont();
     player = client.player;
     bossYOffset = getBossOffset(client);
@@ -85,12 +82,6 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private boolean shouldShowCompass() {
-    return switch (config.DisplayRule) {
-      case COMPASS_HELD -> isCompassHeld();
-      case COMPASS_HOTBAR -> isCompassInHotbar();
-      case COMPASS_INVENTORY -> isCompassInInventory();
-      default -> true;
-    };
       boolean result = false;
       if (AtlasHudClient.isHUD_ENABLED()) {
           result = switch (config.DisplayRule) {
@@ -148,7 +139,7 @@ public class CompassHudOverlay implements HudRenderCallback {
   private void renderBackground() {
     if (!shouldDrawBackground()) return;
     Color bgColor = Color.ofTransparent(config.CompassBackgroundColor);
-    setColor(bgColor);
+    setColorWithOpacity(bgColor);
     int y =
         font.lineHeight - (DECORATION_HEIGHT / 2) + config.CompassBackgroundOffset + calcYOffset();
     int endcap_width = 10;
@@ -183,97 +174,109 @@ public class CompassHudOverlay implements HudRenderCallback {
         DECORATION_HEIGHT,
         endcap_width,
         DECORATION_HEIGHT);
-    RenderSystem.setShaderColor(1, 1, 1, 1);
+    resetColor();
   }
 
   private void renderMarkers() {
+    int z = 0;
     if (!shouldDrawMarkers()) return;
     List<AtlasMarker> sortedMarkers = getSortedMarkers(player);
-    for (int i = 0; i < sortedMarkers.size(); i++) {
-      AtlasMarker marker = sortedMarkers.get(i);
+    for (AtlasMarker marker : sortedMarkers) {
       if (marker.getDistance() <= 2) break;
-      renderMarker(marker, i);
+      z += renderMarker(marker, z);
     }
-  }
-
-  private float calcMarkerScale(AtlasMarker marker) {
-    float chunkDistance = (float) ((marker.getDistance() / 64f) + 1f);
-    return 1f / chunkDistance;
-  }
-
-  private float calcScale(AtlasMarker marker) {
-    return Float.min(markerScale, Float.max(calcMarkerScale(marker), minMarkerScale));
   }
 
   private void drawTexture(ResourceLocation id, int width, int height) {
     int drawWidth = width + (width % 2);
     int drawHeight = height + (height % 2);
-    int y = font.lineHeight - (drawHeight / 2) + calcYOffset() + 1;
-    ctx.blit(id, 0, y, 0f, 0f, drawWidth, drawHeight, drawWidth, drawHeight);
+    ctx.blit(id, 0, 0, 0f, 0f, drawWidth, drawHeight, drawWidth, drawHeight);
   }
 
-  private void drawMarker(AtlasMarker.Texture texture) {
+  private void drawMarker(AtlasMarker marker) {
+    var texture = marker.getTexture();
+    resetColor();
     drawTexture(texture.id(), texture.width(), texture.height());
+    if (marker.hasAccent()) {
+      Color accent = Color.ofTransparent(marker.getColor());
+      setColor(accent, 255);
+      drawAccent(texture);
+    }
   }
 
   private void drawAccent(AtlasMarker.Texture texture) {
     drawTexture(texture.accentId(), texture.width(), texture.height());
   }
 
-  private void renderMarker(AtlasMarker marker, int z) {
+  private int renderMarker(AtlasMarker marker, int z) {
+    int zIncrease = 0;
     AtlasMarker.Texture texture = marker.getTexture();
-    if (texture == null) return;
+    if (texture != null) {
 
-    double markerX = centerX + yawToX(marker.getYaw());
-    double halfWidth = texture.width() / 2.0d;
-    int drawX = (int) (markerX - halfWidth);
+      float markerX = (float) (centerX + yawToX(marker.getYaw()));
+      float halfWidth = texture.width() / 2.0f;
 
-    if (!(markerX - halfWidth > compassStartX && markerX + halfWidth < compassEndX)) return;
+      if ((markerX - halfWidth > compassStartX && markerX + halfWidth < compassEndX)) {
 
-    float scale = calcScale(marker);
-    float yOffset =
-        font.lineHeight
-            - (texture.height() / 2f * scale)
-            + calcYOffset()
-            + config.CompassMarkerOffset
-            + 1;
+        float halfHeight = texture.height() / 2.0f;
 
-    ctx.pose().pushPose();
-    ctx.pose().translate(drawX, yOffset, z * 16);
-    ctx.pose().scale(scale, scale, 1);
+        float scale = marker.calcScale();
+        float yOffset = font.lineHeight + calcYOffset() + config.CompassMarkerOffset;
+        resetColor();
 
-    if (texture.id() == null && texture.stack() == null) {
-      Color color = Color.ofTransparent(marker.getColor());
-      setColor(color);
-      ctx.blit(
-          new ResourceLocation("textures/map/map_icons.png"), 0, 0, 8, 8, 80, 0, 8, 8, 128, 128);
-    } else if (texture.stack() != null) {
-      RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-      ctx.renderItem(texture.stack(), 0, 0);
+        ctx.pose().pushPose();
+        if (texture.id() == null && texture.stack() == null) {
+          ctx.pose().translate(markerX, yOffset, z + ITEM_Z_OFFSET);
+          ctx.pose().scale(scale, scale, 1);
+          ctx.pose().translate((int) -halfWidth, (int) -halfHeight, 0);
+          setColorWithOpacity(Color.ofTransparent(marker.getColor()));
+          drawBanner();
+          zIncrease = 1;
 
-    } else {
+        } else if (texture.stack() != null) {
+          ctx.pose().translate(markerX, yOffset, z);
+          ctx.pose().scale(scale, scale, 1);
+          ctx.pose().translate((int) -halfWidth, (int) -halfHeight, 0);
+          ctx.renderItem(texture.stack(), 0, 0);
+          zIncrease = 8;
 
-      RenderSystem.setShaderColor(1, 1, 1, alpha);
-      drawMarker(texture);
-      if (marker.hasAccent()) {
-        Color accent = Color.ofTransparent(marker.getColor());
-        setColor(accent);
-        drawAccent(marker.getTexture());
+        } else {
+          ctx.pose().translate(markerX, yOffset, z + ITEM_Z_OFFSET);
+          ctx.pose().scale(scale, scale, 1);
+          ctx.pose().translate((int) -halfWidth, (int) -halfHeight, 0);
+          drawMarker(marker);
+          zIncrease = 1;
+        }
+        ctx.pose().popPose();
+        resetColor();
       }
     }
-    ctx.pose().popPose();
-    RenderSystem.setShaderColor(1, 1, 1, 1);
+    return zIncrease;
   }
 
-  private void setColor(Color color) {
+  private void drawBanner() {
+    ctx.blit(new ResourceLocation("textures/map/map_icons.png"), 0, 0, 16, 16, 80, 0, 8, 8, 128, 128);
+  }
+
+  private void setColorWithOpacity(Color color) {
+    setColor(color, opacity);
+    RenderSystem.setShaderColor(
+        color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, opacity);
+  }
+
+  private void setColor(Color color, int alpha) {
     RenderSystem.setShaderColor(
         color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, alpha);
+  }
+
+  private void resetColor() {
+    RenderSystem.setShaderColor(1, 1, 1, 1);
   }
 
   private void renderDirections() {
     if (!shouldDrawDirections()) return;
     Color textColor = Color.ofOpaque(config.CompassTextColor);
-    RenderSystem.setShaderColor(1,1,1,alpha);
+    setColorWithOpacity(textColor);
     int angle = 0;
     for (Direction direction : Direction.values()) {
       double yaw = Mth.wrapDegrees((double) angle - player.getYRot());
@@ -283,7 +286,8 @@ public class CompassHudOverlay implements HudRenderCallback {
         x -= halfWidth;
         var text = Component.literal(direction.abbrev());
 
-        ctx.drawString(font, text, (int) x, calcYOffset() + 1, textColor.getColor(), config.TextDropShadow);
+        ctx.drawString(
+            font, text, (int) x, calcYOffset(), textColor.getColor(), config.TextDropShadow);
       }
       angle += 45;
     }

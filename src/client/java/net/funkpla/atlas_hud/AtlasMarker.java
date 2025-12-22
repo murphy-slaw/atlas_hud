@@ -20,6 +20,7 @@ public class AtlasMarker {
   @Getter private final double pitch;
   @Getter private final double yaw;
   @Getter private final Integer color;
+  private static final AtlasHudConfig config = AtlasHudMod.getConfig();
 
   public AtlasMarker(Player player, Landmark landmark) {
     this.landmark = landmark;
@@ -59,6 +60,16 @@ public class AtlasMarker {
 
   public boolean hasAccent() {
     return color != null && getTexture().accentId() != null;
+  }
+
+  float calcMarkerScale() {
+    float chunkDistance = (float) ((getDistance() / 64f) + 1f);
+    return 1f / chunkDistance;
+  }
+
+  float calcScale() {
+    return Float.min(
+        config.MarkerScale / 100f, Float.max(calcMarkerScale(), config.MinMarkerScale / 100f));
   }
 
   public record Texture(
