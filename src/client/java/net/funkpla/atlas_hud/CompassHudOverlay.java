@@ -8,7 +8,6 @@ import folk.sisby.surveyor.landmark.WorldLandmarks;
 import java.util.*;
 import java.util.stream.IntStream;
 import lombok.Getter;
-import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.math.Color;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.DeltaTracker;
@@ -36,13 +35,11 @@ public class CompassHudOverlay implements HudRenderCallback {
   private static final ResourceLocation DECORATION_RIGHT_TEXTURE =
       ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/right.png");
   private static final int DECORATION_HEIGHT = 5;
-
   private static final TagKey<Item> COMPASS_ITEMS =
       TagKey.create(
           BuiltInRegistries.ITEM.key(),
           ResourceLocation.fromNamespaceAndPath(AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
-  private final AtlasHudConfig config =
-      AutoConfig.getConfigHolder(AtlasHudConfig.class).getConfig();
+  private static final AtlasHudConfig config = AtlasHudMod.getConfig();
   @Getter private int centerX;
   @Getter private int compassWidth;
   @Getter private int compassStartX;
@@ -71,13 +68,9 @@ public class CompassHudOverlay implements HudRenderCallback {
     player = client.player;
     bossYOffset = getBossOffset(client);
 
-    RenderSystem.enableDepthTest();
-    RenderSystem.enableBlend();
     renderBackground();
     renderDirections();
     renderMarkers();
-    RenderSystem.disableDepthTest();
-    RenderSystem.disableBlend();
   }
 
   private int getBossOffset(Minecraft client) {
@@ -99,6 +92,16 @@ public class CompassHudOverlay implements HudRenderCallback {
       case COMPASS_INVENTORY -> isCompassInInventory();
       default -> true;
     };
+      boolean result = false;
+      if (AtlasHudClient.isHUD_ENABLED()) {
+          result = switch (config.DisplayRule) {
+              case COMPASS_HELD -> isCompassHeld();
+              case COMPASS_HOTBAR -> isCompassInHotbar();
+              case COMPASS_INVENTORY -> isCompassInInventory();
+              case ALWAYS -> true;
+          };
+      }
+      return result;
   }
 
   private boolean isCompassHeld() {
