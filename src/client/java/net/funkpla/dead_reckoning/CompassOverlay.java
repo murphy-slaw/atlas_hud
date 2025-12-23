@@ -1,49 +1,41 @@
-package net.funkpla.atlas_hud;
+package net.funkpla.dead_reckoning;
 
-import static net.funkpla.atlas_hud.AtlasHudMod.MOD_ID;
-
+import com.google.common.primitives.Ints;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.emi.trinkets.TrinketsMain;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
+import folk.sisby.surveyor.WorldSummary;
 import folk.sisby.surveyor.client.SurveyorClient;
 import folk.sisby.surveyor.landmark.WorldLandmarks;
 import java.util.*;
 import java.util.stream.IntStream;
 import lombok.Getter;
-import me.shedaniel.math.Color;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.BossHealthOverlay;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class CompassHudOverlay implements HudRenderCallback {
+public class CompassOverlay implements HudRenderCallback {
   private static final int ITEM_Z_OFFSET = 150;
   private static final int BASE_BOSSBAR_OFFSET = 12;
   private static final int BOSSBAR_HEIGHT = 19;
   private static final ResourceLocation DECORATION_TEXTURE =
-      new ResourceLocation(MOD_ID, "textures/gui/decoration.png");
+      new ResourceLocation(DeadReckoning.MOD_ID, "textures/gui/decoration.png");
   private static final ResourceLocation DECORATION_LEFT_TEXTURE =
-      new ResourceLocation(MOD_ID, "textures/gui/left.png");
+      new ResourceLocation(DeadReckoning.MOD_ID, "textures/gui/left.png");
   private static final ResourceLocation DECORATION_RIGHT_TEXTURE =
-      new ResourceLocation(MOD_ID, "textures/gui/right.png");
+      new ResourceLocation(DeadReckoning.MOD_ID, "textures/gui/right.png");
   private static final int DECORATION_HEIGHT = 5;
-  private static final TagKey<Item> COMPASS_ITEMS =
-      TagKey.create(
-          BuiltInRegistries.ITEM.key(),
-          new ResourceLocation(AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
-  private static final AtlasHudConfig config = AtlasHudMod.getConfig();
   private Player player;
   private Font font;
   private TrinketComponent trinkets;
@@ -51,7 +43,6 @@ public class CompassHudOverlay implements HudRenderCallback {
   @Getter private int compassWidth;
   @Getter private int compassStartX;
   @Getter private int compassEndX;
-  private int opacity;
   private int bossYOffset;
   private GuiGraphics ctx;
 
@@ -68,10 +59,9 @@ public class CompassHudOverlay implements HudRenderCallback {
     this.ctx = ctx;
     int windowWidth = ctx.guiWidth();
     centerX = windowWidth / 2;
-    compassWidth = (int) (windowWidth * (config.CompassWidth / 100d));
+    compassWidth = (int) (windowWidth * (DeadReckoning.CONFIG.alignment.screenWidth));
     compassStartX = centerX - (compassWidth / 2);
     compassEndX = centerX + (compassWidth / 2);
-    opacity = (int) (config.CompassOpacity / 100f) * 255;
     bossYOffset = getBossOffset(client);
 
     renderBackground();
@@ -93,9 +83,9 @@ public class CompassHudOverlay implements HudRenderCallback {
 
   private boolean shouldShowCompass() {
     boolean result = false;
-    if (AtlasHudClient.isHUD_ENABLED()) {
+    if (DeadReckoning.isHUD_ENABLED()) {
       result =
-          switch (config.DisplayRule) {
+          switch (DeadReckoning.CONFIG.displayMode) {
             case COMPASS_HELD -> isCompassHeld();
             case COMPASS_HOTBAR -> isCompassInHotbar();
             case COMPASS_INVENTORY -> isCompassInInventory();
@@ -106,22 +96,22 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private boolean isCompassHeld() {
-    for (ItemStack hand : player.getHandSlots()) {
-      if (hand.is(COMPASS_ITEMS)) return true;
+    for (ItemStack stack : player.getHandSlots()) {
+      if (DeadReckoning.isCompass(stack)) return true;
     }
     return false;
   }
 
   private boolean isCompassInHotbar() {
     return IntStream.range(0, Inventory.getSelectionSize())
-            .anyMatch(i -> player.getInventory().items.get(i).is(COMPASS_ITEMS))
+            .anyMatch(i -> DeadReckoning.isCompass(player.getInventory().items.get(i)))
         || (isCompassHeld());
   }
 
   private boolean isCompassInInventory() {
     boolean result = true;
-    if (!player.getInventory().contains(COMPASS_ITEMS)) {
-      if (trinkets == null || !trinkets.isEquipped(t -> t.is(COMPASS_ITEMS))) {
+    if (!player.getInventory().hasAnyMatching(DeadReckoning::isCompass)) {
+      if (trinkets == null || !trinkets.isEquipped(DeadReckoning::isCompass)) {
         result = isCompassHeld();
       }
     }
@@ -129,35 +119,35 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private boolean shouldDrawBackground() {
-    return config.DrawBackground && shouldShowCompass();
+    return DeadReckoning.CONFIG.style.background && shouldShowCompass();
   }
 
   private boolean shouldDrawMarkers() {
-    return config.ShowMarkers && shouldShowCompass();
+    return DeadReckoning.CONFIG.markers.enabled && shouldShowCompass();
   }
 
   private boolean shouldDrawDirections() {
-    return config.ShowDirections && shouldShowCompass();
+    return DeadReckoning.CONFIG.style.cardinalDirections && shouldShowCompass();
   }
 
   private double yawToX(double yaw) {
-    double ratio = (double) compassWidth / config.CompassArc;
+    double ratio = (double) compassWidth / DeadReckoning.CONFIG.alignment.visibleArc;
     return yaw * ratio;
   }
 
   private int calcYOffset() {
-    if (config.CompassOffset <= bossYOffset) {
-      return config.CompassOffset + bossYOffset;
+    if (DeadReckoning.CONFIG.alignment.yOffset <= bossYOffset) {
+      return DeadReckoning.CONFIG.alignment.yOffset + bossYOffset;
     }
-    return config.CompassOffset;
+    return DeadReckoning.CONFIG.alignment.yOffset;
   }
 
   private void renderBackground() {
     if (!shouldDrawBackground()) return;
-    Color bgColor = Color.ofTransparent(config.CompassBackgroundColor);
+    int bgColor = Objects.requireNonNullElse(Ints.tryParse(DeadReckoning.CONFIG.style.backgroundColor.substring(1), 16), 0xFFFFFF);
     setColorWithOpacity(bgColor);
     int y =
-        font.lineHeight - (DECORATION_HEIGHT / 2) + config.CompassBackgroundOffset + calcYOffset();
+        font.lineHeight - (DECORATION_HEIGHT / 2) + DeadReckoning.CONFIG.alignment.backgroundYOffset + calcYOffset();
     int endcap_width = 10;
     int width = compassEndX - compassStartX - (2 * endcap_width);
     ctx.blit(
@@ -214,8 +204,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     resetColor();
     drawTexture(texture.id(), texture.width(), texture.height());
     if (marker.hasAccent()) {
-      Color accent = Color.ofTransparent(marker.getColor());
-      setColor(accent, 255);
+      setColor(marker.getColor(), 1);
       drawAccent(texture);
     }
   }
@@ -237,7 +226,7 @@ public class CompassHudOverlay implements HudRenderCallback {
         float halfHeight = texture.height() / 2.0f;
 
         float scale = marker.calcScale();
-        float yOffset = font.lineHeight + calcYOffset() + config.CompassMarkerOffset;
+        float yOffset = font.lineHeight + calcYOffset() + DeadReckoning.CONFIG.alignment.markerYOffset;
         resetColor();
 
         ctx.pose().pushPose();
@@ -245,7 +234,7 @@ public class CompassHudOverlay implements HudRenderCallback {
           ctx.pose().translate(markerX, yOffset, z + ITEM_Z_OFFSET);
           ctx.pose().scale(scale, scale, 1);
           ctx.pose().translate((int) -halfWidth, (int) -halfHeight, 0);
-          setColorWithOpacity(Color.ofTransparent(marker.getColor()));
+          setColorWithOpacity(marker.getColor());
           drawBanner();
           zIncrease = 1;
 
@@ -275,15 +264,12 @@ public class CompassHudOverlay implements HudRenderCallback {
         new ResourceLocation("textures/map/map_icons.png"), 0, 0, 16, 16, 80, 0, 8, 8, 128, 128);
   }
 
-  private void setColorWithOpacity(Color color) {
-    setColor(color, opacity);
-    RenderSystem.setShaderColor(
-        color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, opacity);
+  private void setColor(int color, float alpha) {
+    RenderSystem.setShaderColor(FastColor.ARGB32.red(color) / 255.0F, FastColor.ARGB32.green(color) / 255.0F, FastColor.ARGB32.blue(color) / 255.0F, alpha);
   }
 
-  private void setColor(Color color, int alpha) {
-    RenderSystem.setShaderColor(
-        color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, alpha);
+  private void setColorWithOpacity(int color) {
+    setColor(color, DeadReckoning.CONFIG.style.opacity);
   }
 
   private void resetColor() {
@@ -292,7 +278,7 @@ public class CompassHudOverlay implements HudRenderCallback {
 
   private void renderDirections() {
     if (!shouldDrawDirections()) return;
-    Color textColor = Color.ofOpaque(config.CompassTextColor);
+    int textColor = Objects.requireNonNullElse(Ints.tryParse(DeadReckoning.CONFIG.style.textColor.substring(1), 16), 0xFFFFFF);
     setColorWithOpacity(textColor);
     int angle = 0;
     for (Direction direction : Direction.values()) {
@@ -304,14 +290,14 @@ public class CompassHudOverlay implements HudRenderCallback {
         var text = Component.literal(direction.abbrev());
 
         ctx.drawString(
-            font, text, (int) x, calcYOffset(), textColor.getColor(), config.TextDropShadow);
+            font, text, (int) x, calcYOffset(), textColor, DeadReckoning.CONFIG.style.textShadow);
       }
       angle += 45;
     }
   }
 
   private List<AtlasMarker> getSortedMarkers(Player player) {
-    WorldLandmarks landmarks = AtlasHudClient.getLandmarks();
+    WorldLandmarks landmarks = WorldSummary.of(player.level()).landmarks();
     if (landmarks == null) {
       return new ArrayList<>();
     }

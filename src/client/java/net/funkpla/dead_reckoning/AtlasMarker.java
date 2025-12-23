@@ -1,4 +1,4 @@
-package net.funkpla.atlas_hud;
+package net.funkpla.dead_reckoning;
 
 import folk.sisby.antique_atlas.AntiqueAtlas;
 import folk.sisby.antique_atlas.MarkerTexture;
@@ -20,7 +20,6 @@ public class AtlasMarker {
   @Getter private final double pitch;
   @Getter private final double yaw;
   @Getter private final Integer color;
-  private static final AtlasHudConfig config = AtlasHudMod.getConfig();
 
   public AtlasMarker(Player player, Landmark landmark) {
     this.landmark = landmark;
@@ -69,7 +68,7 @@ public class AtlasMarker {
 
   float calcScale() {
     return Float.min(
-        config.MarkerScale / 100f, Float.max(calcMarkerScale(), config.MinMarkerScale / 100f));
+        DeadReckoning.CONFIG.markers.scale, Float.max(calcMarkerScale(), DeadReckoning.CONFIG.markers.minScale));
   }
 
   public record Texture(

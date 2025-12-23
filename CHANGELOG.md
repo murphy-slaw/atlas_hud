@@ -1,4 +1,4 @@
-# Changelog for [Dead Reckoning](https://github.com/murphy-slaw/atlas_hud)
+# Changelog for [Dead Reckoning](https://github.com/murphy-slaw/dead-reckoning)
 (Formerly __Antique Atlas Compass HUD__)
 
 All notable changes to this project will be documented in this file.
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added a configurable keybind to show/hide the HUD (Might come in handy for ALWAYS or COMPASS_INVENTORY display 
   modes).  Defaults to '.'
-- COMPASS_INVENTORY mode now checks Trinkets slots for items with the 'atlas_hud:shows_compass_ribbon' tag if 
+- COMPASS_INVENTORY mode now checks Trinkets slots for items with the 'dead_reckoning:shows_compass_ribbon' tag if 
   Trinkets is installed (and configured to allow such items in slots).
 
 
@@ -60,9 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 away they are.
 - Drop shadow for direction text can be toggled off.
 - Compass decorations are now textures. To customize, create a resource pack that adds the following textures:
-  - `atlas_hud/textures/left.png`
-  - `atlas_hud/textures/decoration.png`
-  - `atlas_hud/textures/right.png`
+  - `dead_reckoning/textures/left.png`
+  - `dead_reckoning/textures/decoration.png`
+  - `dead_reckoning/textures/right.png`
 
 ## [1.3.0] 2025-12-15
 
@@ -86,7 +86,7 @@ away they are.
 ## [1.0.1] 2025-08-19
 
 ### Fixed
-- Default config no longer supplies invalid RGBA colors. Fixes [#3](https://github.com/murphy-slaw/atlas_hud/issues/3)
+- Default config no longer supplies invalid RGBA colors. Fixes [#3](https://github.com/murphy-slaw/dead-reckoning/issues/3)
 
 ## [1.0.0] 2025-02-25
 
