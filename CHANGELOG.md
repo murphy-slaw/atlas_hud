@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] 2025-12-22
+
+### Changed
+- Big refactor to de-spaghettify renderMarkers(). Fixes some minor rendering issues and some issues with incorrect 
+  z-ordering of markers.
+
+### Added
+- Added a configurable keybind to show/hide the HUD (Might come in handy for ALWAYS or COMPASS_INVENTORY display 
+  modes).  Defaults to '.'
+- COMPASS_INVENTORY mode now checks Trinkets slots for items with the 'atlas_hud:shows_compass_ribbon' tag if 
+  Trinkets is installed (and configured to allow such items in slots).
+
+
 ## [1.5.1] 2025-12-21
 
 ### Fixed
