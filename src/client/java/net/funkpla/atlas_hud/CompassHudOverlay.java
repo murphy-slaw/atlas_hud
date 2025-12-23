@@ -3,6 +3,9 @@ package net.funkpla.atlas_hud;
 import static net.funkpla.atlas_hud.AtlasHudMod.MOD_ID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.emi.trinkets.TrinketsMain;
+import dev.emi.trinkets.api.TrinketComponent;
+import dev.emi.trinkets.api.TrinketsApi;
 import folk.sisby.surveyor.client.SurveyorClient;
 import folk.sisby.surveyor.landmark.WorldLandmarks;
 import java.util.*;
@@ -10,6 +13,7 @@ import java.util.stream.IntStream;
 import lombok.Getter;
 import me.shedaniel.math.Color;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -41,6 +45,9 @@ public class CompassHudOverlay implements HudRenderCallback {
           BuiltInRegistries.ITEM.key(),
           ResourceLocation.fromNamespaceAndPath(AtlasHudMod.MOD_ID, "shows_compass_ribbon"));
   private static final AtlasHudConfig config = AtlasHudMod.getConfig();
+  private Player player;
+  private Font font;
+  private TrinketComponent trinkets;
   @Getter private int centerX;
   @Getter private int compassWidth;
   @Getter private int compassStartX;
@@ -48,21 +55,24 @@ public class CompassHudOverlay implements HudRenderCallback {
   private int opacity;
   private int bossYOffset;
   private GuiGraphics ctx;
-  private Font font;
-  private Player player;
 
   @Override
   public void onHudRender(GuiGraphics ctx, DeltaTracker deltaTracker) {
     Minecraft client = Minecraft.getInstance();
+    this.player = client.player;
+
+    if (FabricLoader.getInstance().isModLoaded(TrinketsMain.MOD_ID)) {
+      TrinketsApi.getTrinketComponent(player).ifPresent(component -> this.trinkets = component);
+    }
+
+    font = client.font;
     this.ctx = ctx;
     int windowWidth = ctx.guiWidth();
     centerX = windowWidth / 2;
     compassWidth = (int) (windowWidth * (config.CompassWidth / 100d));
     compassStartX = centerX - (compassWidth / 2);
     compassEndX = centerX + (compassWidth / 2);
-    opacity = (int)(config.CompassOpacity / 100f)*255;
-    font = client.gui.getFont();
-    player = client.player;
+    opacity = (int) (config.CompassOpacity / 100f) * 255;
     bossYOffset = getBossOffset(client);
 
     renderBackground();
@@ -83,16 +93,17 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private boolean shouldShowCompass() {
-      boolean result = false;
-      if (AtlasHudClient.isHUD_ENABLED()) {
-          result = switch (config.DisplayRule) {
-              case COMPASS_HELD -> isCompassHeld();
-              case COMPASS_HOTBAR -> isCompassInHotbar();
-              case COMPASS_INVENTORY -> isCompassInInventory();
-              case ALWAYS -> true;
+    boolean result = false;
+    if (AtlasHudClient.isHUD_ENABLED()) {
+      result =
+          switch (config.DisplayRule) {
+            case COMPASS_HELD -> isCompassHeld();
+            case COMPASS_HOTBAR -> isCompassInHotbar();
+            case COMPASS_INVENTORY -> isCompassInInventory();
+            case ALWAYS -> true;
           };
-      }
-      return result;
+    }
+    return result;
   }
 
   private boolean isCompassHeld() {
@@ -109,8 +120,13 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private boolean isCompassInInventory() {
-    if (player.getInventory().contains(COMPASS_ITEMS)) return true;
-    return isCompassHeld();
+    boolean result = true;
+    if (!player.getInventory().contains(COMPASS_ITEMS)) {
+      if (trinkets == null || !trinkets.isEquipped(t -> t.is(COMPASS_ITEMS))) {
+        result = isCompassHeld();
+      }
+    }
+    return result;
   }
 
   private boolean shouldDrawBackground() {
@@ -230,7 +246,7 @@ public class CompassHudOverlay implements HudRenderCallback {
           ctx.pose().translate(markerX, yOffset, z + ITEM_Z_OFFSET);
           ctx.pose().scale(scale, scale, 1);
           ctx.pose().translate((int) -halfWidth, (int) -halfHeight, 0);
-          setColorWithOpacity(Color.ofTransparent(marker.getColor()));
+          setColor(Color.ofTransparent(marker.getColor()), 255);
           drawBanner();
           zIncrease = 1;
 
@@ -256,7 +272,18 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private void drawBanner() {
-    ctx.blit(ResourceLocation.tryParse("textures/map/map_icons.png"), 0, 0, 16, 16, 80, 0, 8, 8, 128, 128);
+    ctx.blit(
+        ResourceLocation.tryParse("textures/map/decorations/white_banner.png"),
+        0,
+        0,
+        16,
+        16,
+        0,
+        0,
+        8,
+        8,
+        8,
+        8);
   }
 
   private void setColorWithOpacity(Color color) {
