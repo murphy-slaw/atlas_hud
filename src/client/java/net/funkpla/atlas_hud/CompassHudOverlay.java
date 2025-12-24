@@ -8,6 +8,7 @@ import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
 import folk.sisby.surveyor.client.SurveyorClient;
 import folk.sisby.surveyor.landmark.WorldLandmarks;
+import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
 import java.util.*;
 import java.util.stream.IntStream;
 import lombok.Getter;
@@ -330,6 +331,7 @@ public class CompassHudOverlay implements HudRenderCallback {
     return landmarks.keySet(SurveyorClient.getExploration()).entries().stream()
         .map(entry -> landmarks.get(entry.getKey(), entry.getValue()))
         .filter(Objects::nonNull)
+        .filter(e -> e.contains(LandmarkComponentTypes.POS))
         .map(landmark -> new AtlasMarker(player, landmark))
         .sorted(Comparator.comparingDouble(AtlasMarker::getDistance))
         .toList()
