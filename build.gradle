@@ -96,7 +96,6 @@ dependencies {
     modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
     modImplementation "folk.sisby:surveyor:${project.surveyor_version}"
     modCompileOnly "maven.modrinth:antique-atlas-4:${project.antique_atlas_version}"
-    modCompileOnly "maven.modrinth:hoofprint:${project.hoofprint_version}"
     modCompileOnly "dev.emi:trinkets:${trinkets_version}"
 }
 

@@ -5,7 +5,8 @@ import static net.funkpla.atlas_hud.AtlasHudMod.MOD_ID;
 import com.mojang.blaze3d.platform.InputConstants;
 import folk.sisby.surveyor.WorldSummary;
 import folk.sisby.surveyor.client.SurveyorClientEvents;
-import folk.sisby.surveyor.landmark.WorldLandmarks;
+import folk.sisby.surveyor.landmark.Landmark;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import net.fabricmc.api.ClientModInitializer;
@@ -15,15 +16,16 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 public class AtlasHudClient implements ClientModInitializer {
   @Getter @Setter private static boolean HUD_ENABLED = true;
-  private static WorldLandmarks LANDMARKS;
+  @Nullable @Getter @Setter private static List<Landmark> landmarks;
   private static KeyMapping TOGGLE_HUD_KEY;
 
-  public static WorldLandmarks getLandmarks() {
-    return LANDMARKS;
+  public static void invalidateLandmarks() {
+    setLandmarks(null);
   }
 
   @Override
@@ -33,18 +35,13 @@ public class AtlasHudClient implements ClientModInitializer {
 
     HudRenderCallback.EVENT.register(new CompassHudOverlay());
 
-    SurveyorClientEvents.Register.worldLoad(
-        new ResourceLocation(MOD_ID, "world_load"),
-        (level, summary, player, terrain, structures, landmarks) ->
-            LANDMARKS = summary.landmarks());
-
     SurveyorClientEvents.Register.landmarksAdded(
         new ResourceLocation(MOD_ID, "landmarks_added"),
-        (level, worldLandmarks, landmarks) -> LANDMARKS = worldLandmarks);
+        (level, worldLandmarks, landmarks) -> invalidateLandmarks());
 
     SurveyorClientEvents.Register.landmarksRemoved(
         new ResourceLocation(MOD_ID, "landmarks_removed"),
-        (world, worldLandmarks, landmarks) -> LANDMARKS = worldLandmarks);
+        (world, worldLandmarks, landmarks) -> invalidateLandmarks());
 
     TOGGLE_HUD_KEY =
         KeyBindingHelper.registerKeyBinding(

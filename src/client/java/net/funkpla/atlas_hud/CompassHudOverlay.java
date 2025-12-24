@@ -6,11 +6,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.emi.trinkets.TrinketsMain;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
+import folk.sisby.surveyor.WorldSummary;
 import folk.sisby.surveyor.client.SurveyorClient;
-import folk.sisby.surveyor.landmark.WorldLandmarks;
-import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
 import java.util.*;
 import java.util.stream.IntStream;
+
+import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
 import lombok.Getter;
 import me.shedaniel.math.Color;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -312,13 +313,18 @@ public class CompassHudOverlay implements HudRenderCallback {
   }
 
   private List<AtlasMarker> getSortedMarkers(Player player) {
-    WorldLandmarks landmarks = AtlasHudClient.getLandmarks();
-    if (landmarks == null) {
-      return new ArrayList<>();
+    if (AtlasHudClient.getLandmarks() == null) {
+      var landmarks = WorldSummary.of(player.level()).landmarks();
+      if (landmarks == null) {
+        AtlasHudClient.invalidateLandmarks();
+      } else {
+        AtlasHudClient.setLandmarks(
+            landmarks.keySet(SurveyorClient.getExploration()).entries().stream()
+                .map(entry -> landmarks.get(entry.getKey(), entry.getValue()))
+                .toList());
+      }
     }
-
-    return landmarks.keySet(SurveyorClient.getExploration()).entries().stream()
-        .map(entry -> landmarks.get(entry.getKey(), entry.getValue()))
+    return AtlasHudClient.getLandmarks().stream()
         .filter(Objects::nonNull)
         .filter(e -> e.contains(LandmarkComponentTypes.POS))
         .map(landmark -> new AtlasMarker(player, landmark))
