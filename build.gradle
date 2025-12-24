@@ -60,15 +60,16 @@ repositories {
 
 loom {
     splitEnvironmentSourceSets()
-    var accessWidenerFile = file("src/client/resources/${archives_base_name}.accesswidener")
+    var accessWidenerFile = file("src/main/resources/${archives_base_name}.accesswidener")
     if (accessWidenerFile.exists()) {
-        accessWidenerPath.set(accessWidenerFile)
+        accessWidenerPath = accessWidenerFile
     } else {
         println "No access widener exists!"
     }
 
     mods {
         "dead_reckoning" {
+            sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
     }
@@ -97,11 +98,12 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
+  final Map<String, String> meta = [
+    version: version,
+  ]
+  inputs.properties meta
+  filesMatching("*.mod.json") { expand(meta) }
+  filesMatching("META-INF/*mods.toml") { expand(meta) }
 }
 
 tasks.withType(JavaCompile).configureEach {
