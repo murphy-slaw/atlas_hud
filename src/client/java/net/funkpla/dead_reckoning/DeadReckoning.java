@@ -28,8 +28,8 @@ public class DeadReckoning implements ClientModInitializer {
   public static final String MOD_NAME = "Dead Reckoning";
   public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
   public static final DeadReckoningConfig CONFIG = DeadReckoningConfig.createToml(FabricLoader.getInstance().getConfigDir(), "", MOD_ID, DeadReckoningConfig.class);
-  public static final TagKey<Item> COMMON_COMPASSES = TagKey.create(BuiltInRegistries.ITEM.key(), new ResourceLocation("c", "compasses"));
-  public static final TagKey<Item> COMPASSES = TagKey.create(BuiltInRegistries.ITEM.key(), new ResourceLocation(DeadReckoning.MOD_ID, "compasses"));
+  public static final TagKey<Item> COMMON_COMPASSES = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.fromNamespaceAndPath("c", "compasses"));
+  public static final TagKey<Item> COMPASSES = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.fromNamespaceAndPath(DeadReckoning.MOD_ID, "compasses"));
 
   @Getter @Setter private static boolean HUD_ENABLED = true;
   private static final KeyMapping TOGGLE_HUD_KEY = new KeyMapping(
