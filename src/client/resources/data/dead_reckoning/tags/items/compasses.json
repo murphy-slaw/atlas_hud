@@ -1,6 +1,6 @@
 {
     "override": false,
     "values": [
-        "minecraft:compass"
+        "#c:compasses"
     ]
 }

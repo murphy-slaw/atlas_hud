@@ -5,6 +5,9 @@ import folk.sisby.kaleido.lib.quiltconfig.api.annotations.Comment;
 import folk.sisby.kaleido.lib.quiltconfig.api.annotations.DisplayName;
 import folk.sisby.kaleido.lib.quiltconfig.api.annotations.FloatRange;
 import folk.sisby.kaleido.lib.quiltconfig.api.annotations.IntegerRange;
+import folk.sisby.kaleido.lib.quiltconfig.api.values.ValueList;
+
+import java.util.List;
 
 public class DeadReckoningConfig extends WrappedConfig {
   public enum DisplayWhen {
@@ -15,11 +18,22 @@ public class DeadReckoningConfig extends WrappedConfig {
   @Comment("Overridden if disabled via hotkey.")
   public DisplayWhen displayMode = DisplayWhen.COMPASS_HELD;
 
+  // @Matches("([a-z0-9_.-]:)?[a-z0-9/._-]+") https://github.com/sisby-folk/mcqoy/issues/3
+  @Comment("What items to consider compasses for non-always display modes.")
+  @Comment("Overridden by #dead_reckoning:compasses (or #c:compasses) if present.")
+  public List<String> compasses = ValueList.create("", "minecraft:compass", "minecraft:recovery_compass");
+
   public Style style = new Style();
 
   public static class Style implements Section {
-    @Comment("Whether to render the eight cardinal directions.")
-    public boolean cardinalDirections = true;
+    public enum DirectionDisplay {
+      INTERCARDINAL,
+      CARDINAL,
+      NONE
+    }
+
+    @Comment("What level of compass directions to display as as abbreviated text.")
+    public DirectionDisplay directions = DirectionDisplay.INTERCARDINAL;
 
     @Comment("Whether to render the line underneath the compass area.")
     public boolean background = true;
@@ -48,11 +62,12 @@ public class DeadReckoningConfig extends WrappedConfig {
     @Comment("Whether to show Surveyor markers on the compass at all.")
     public boolean enabled = true;
 
-    @Comment("The default size to render markers at.")
+    @Comment("The maximum size to render markers on the compass.")
     @FloatRange(min = 0.1F, max = 1.0F)
     public float scale = 1.0F;
 
-    @Comment("The minimum size to render far away markers at.")
+    @Comment("The minimum size to render markers on the compass.")
+    @Comment("Used to represent the waypoint being further away.")
     @FloatRange(min = 0.1F, max = 1.0F)
     public float minScale = 0.1F;
   }

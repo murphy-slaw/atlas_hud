@@ -36,6 +36,7 @@ public class CompassOverlay implements HudRenderCallback {
   private static final ResourceLocation DECORATION_RIGHT_TEXTURE =
       new ResourceLocation(DeadReckoning.MOD_ID, "textures/gui/right.png");
   private static final int DECORATION_HEIGHT = 5;
+  private final int WHITE = 0xFFFFFF;
   private Player player;
   private Font font;
   private TrinketComponent trinkets;
@@ -127,7 +128,7 @@ public class CompassOverlay implements HudRenderCallback {
   }
 
   private boolean shouldDrawDirections() {
-    return DeadReckoning.CONFIG.style.cardinalDirections && shouldShowCompass();
+    return DeadReckoning.CONFIG.style.directions != DeadReckoningConfig.Style.DirectionDisplay.NONE && shouldShowCompass();
   }
 
   private double yawToX(double yaw) {
@@ -144,7 +145,7 @@ public class CompassOverlay implements HudRenderCallback {
 
   private void renderBackground() {
     if (!shouldDrawBackground()) return;
-    int bgColor = Objects.requireNonNullElse(Ints.tryParse(DeadReckoning.CONFIG.style.backgroundColor.substring(1), 16), 0xFFFFFF);
+    int bgColor = Objects.requireNonNullElse(Ints.tryParse(DeadReckoning.CONFIG.style.backgroundColor.substring(1), 16), WHITE);
     setColorWithOpacity(bgColor);
     int y =
         font.lineHeight - (DECORATION_HEIGHT / 2) + DeadReckoning.CONFIG.alignment.backgroundYOffset + calcYOffset();
@@ -278,10 +279,11 @@ public class CompassOverlay implements HudRenderCallback {
 
   private void renderDirections() {
     if (!shouldDrawDirections()) return;
-    int textColor = Objects.requireNonNullElse(Ints.tryParse(DeadReckoning.CONFIG.style.textColor.substring(1), 16), 0xFFFFFF);
+    int textColor = Objects.requireNonNullElse(Ints.tryParse(DeadReckoning.CONFIG.style.textColor.substring(1), 16), WHITE);
     setColorWithOpacity(textColor);
     int angle = 0;
     for (Direction direction : Direction.values()) {
+      if (DeadReckoning.CONFIG.style.directions == DeadReckoningConfig.Style.DirectionDisplay.CARDINAL && direction.ordinal() % 2 == 1) continue;
       double yaw = Mth.wrapDegrees((double) angle - player.getYRot());
       double x = centerX + yawToX(yaw);
       double halfWidth = font.width(direction.abbrev) / 2.0;
