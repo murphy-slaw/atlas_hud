@@ -1,0 +1,5 @@
+{
+    "dead_reckoning.toggled_hud_visibility": "Toggled compass visibliity %s.",
+    "key.dead_reckoning.toggle": "Toggle Compass Visibility",
+    "category.dead_reckoning.general": "Dead Reckoning"
+}

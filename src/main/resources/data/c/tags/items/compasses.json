@@ -1,0 +1,7 @@
+{
+    "override": false,
+    "values": [
+        "minecraft:compass",
+        "minecraft:recovery_compass"
+    ]
+}
