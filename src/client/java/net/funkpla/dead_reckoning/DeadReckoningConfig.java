@@ -5,6 +5,7 @@ import folk.sisby.kaleido.lib.quiltconfig.api.annotations.Comment;
 import folk.sisby.kaleido.lib.quiltconfig.api.annotations.DisplayName;
 import folk.sisby.kaleido.lib.quiltconfig.api.annotations.FloatRange;
 import folk.sisby.kaleido.lib.quiltconfig.api.annotations.IntegerRange;
+import folk.sisby.kaleido.lib.quiltconfig.api.annotations.Matches;
 import folk.sisby.kaleido.lib.quiltconfig.api.values.ValueList;
 
 import java.util.List;
@@ -18,10 +19,10 @@ public class DeadReckoningConfig extends WrappedConfig {
   @Comment("Overridden if disabled via hotkey.")
   public DisplayWhen displayMode = DisplayWhen.COMPASS_HELD;
 
-  // @Matches("([a-z0-9_.-]:)?[a-z0-9/._-]+") https://github.com/sisby-folk/mcqoy/issues/3
+  @Matches("([a-z0-9_.-]+:)?[a-z0-9/._-]+")
   @Comment("What items to consider compasses for non-always display modes.")
   @Comment("Overridden by #dead_reckoning:compasses (or #c:compasses) if present.")
-  public List<String> compasses = ValueList.create("", "minecraft:compass", "minecraft:recovery_compass");
+  public List<String> compassItems = ValueList.create("", "minecraft:compass", "minecraft:recovery_compass");
 
   public Style style = new Style();
 
@@ -42,12 +43,12 @@ public class DeadReckoningConfig extends WrappedConfig {
     @Comment("How opaque to render all compass elements.")
     public float opacity = 1.0F;
 
-    // @Matches("#[0-9A-Fa-f]{6}") https://github.com/sisby-folk/mcqoy/issues/3
+    @Matches("#[0-9A-Fa-f]{6}")
     @Comment("What color to render the compass background decoration in.")
     @Comment("6-digit hex code, starting with #")
     public String backgroundColor = "#000000";
 
-    // @Matches("#[0-9A-Fa-f]{6}") https://github.com/sisby-folk/mcqoy/issues/3
+    @Matches("#[0-9A-Fa-f]{6}")
     @Comment("What color to render text (e.g. directions) in.")
     @Comment("6-digit hex code, starting with #")
     public String textColor = "#FFFFFF";

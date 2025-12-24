@@ -40,7 +40,7 @@ public class DeadReckoning implements ClientModInitializer {
 
   public static boolean isCompass(ItemStack stack) {
     Registry<Item> registry = Minecraft.getInstance().level.registryAccess().registry(Registries.ITEM).orElseThrow();
-    return registry.getTag(COMPASSES).isPresent() ? stack.is(COMPASSES) : registry.getTag(COMMON_COMPASSES).isPresent() ? stack.is(COMMON_COMPASSES) : CONFIG.compasses.contains(registry.getKey(stack.getItem()).toString());
+    return registry.getTag(COMPASSES).isPresent() ? stack.is(COMPASSES) : registry.getTag(COMMON_COMPASSES).isPresent() ? stack.is(COMMON_COMPASSES) : CONFIG.compassItems.contains(registry.getKey(stack.getItem()).toString());
   }
 
   @Override
