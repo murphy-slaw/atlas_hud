@@ -284,8 +284,9 @@ public class CompassOverlay implements HudRenderCallback {
     setColorWithOpacity(textColor);
     int angle = 0;
     for (Direction direction : Direction.values()) {
-      if (DeadReckoning.CONFIG.style.directions == DeadReckoningConfig.Style.DirectionDisplay.CARDINAL && direction.ordinal() % 2 == 1) continue;
       double yaw = Mth.wrapDegrees((double) angle - player.getYRot());
+      angle += 45;
+      if (DeadReckoning.CONFIG.style.directions == DeadReckoningConfig.Style.DirectionDisplay.CARDINAL && direction.ordinal() % 2 == 1) continue;
       double x = centerX + yawToX(yaw);
       double halfWidth = font.width(direction.abbrev) / 2.0;
       if (x - halfWidth > compassStartX && x + halfWidth < compassEndX) {
@@ -295,7 +296,6 @@ public class CompassOverlay implements HudRenderCallback {
         ctx.drawString(
             font, text, (int) x, calcYOffset(), textColor, DeadReckoning.CONFIG.style.textShadow);
       }
-      angle += 45;
     }
   }
 
