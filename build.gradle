@@ -96,10 +96,10 @@ dependencies {
     modCompileOnly "folk.sisby:antique-atlas:${project.antique_atlas_version}"
     modCompileOnly "dev.emi:trinkets:${trinkets_version}"
 
-    // These aren't hard dependencies - here for local testing.
-    modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
-    modRuntimeOnly "maven.modrinth:yacl:${project.yacl_version}"
-    modRuntimeOnly "maven.modrinth:mcqoy:${project.mcqoy_version}"
+  // These aren't hard dependencies - here for local testing.
+  modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+  modRuntimeOnly "maven.modrinth:mcqoy:${project.mcqoy_version}"
+  modRuntimeOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 }
 
 processResources {
