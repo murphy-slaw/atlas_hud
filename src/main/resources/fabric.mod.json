@@ -33,6 +33,8 @@
   "suggests": {
     "modmenu": "*",
     "antique_atlas": ">=3.0.0",
-    "hoofprint": ">=1.1.0"
+    "hoofprint": ">=1.1.0",
+    "yacl": ">=3.6.6",
+    "mcqoy": ">=0.4.1"
   }
 }
