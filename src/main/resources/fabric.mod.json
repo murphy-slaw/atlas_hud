@@ -1,38 +1,40 @@
 {
-    "schemaVersion": 1,
-    "id": "dead_reckoning",
-    "version": "${version}",
-    "name": "Dead Reckoning",
-    "description": "Displays a compass ribbon in the HUD with Surveyor map markers.",
-    "authors": [
-        "murphy_slaw"
-    ],
-    "contact": {
-        "homepage": "https://modrinth.com/mod/dead-reckoning",
-        "sources": "https://github.com/murphy-slaw/dead-reckoning"
-    },
-    "license": "MIT",
-    "icon": "assets/dead_reckoning/icon.png",
-    "environment": "client",
-    "accessWidener": "dead_reckoning.accesswidener",
-    "entrypoints": {
-        "client": [
-            "net.funkpla.dead_reckoning.DeadReckoning"
-        ]
-    },
-    "mixins": [
-    ],
-    "depends": {
-        "fabricloader": ">=0.17.2",
+  "schemaVersion": 1,
+  "id": "dead_reckoning",
+  "version": "${version}",
+  "name": "Dead Reckoning",
+  "description": "Displays a compass ribbon in the HUD with Surveyor map markers.",
+  "authors": [
+    "murphy_slaw"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/dead-reckoning",
+    "sources": "https://github.com/murphy-slaw/dead-reckoning"
+  },
+  "license": "MIT",
+  "icon": "assets/dead_reckoning/icon.png",
+  "environment": "client",
+  "accessWidener": "dead_reckoning.accesswidener",
+  "entrypoints": {
+    "client": [
+      "net.funkpla.dead_reckoning.DeadReckoning"
+    ]
+  },
+  "mixins": [
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.2",
     "fabric-key-binding-api-v1": "*",
     "minecraft": "~1.21.1",
-        "java": ">=21",
-        "fabric-api": "*",
-        "surveyor": ">=1.0.3"
-    },
-    "suggests": {
-        "modmenu": "*",
-        "antique_atlas": ">=3.0.0",
-        "hoofprint": ">=1.1.0"
-    }
+    "java": ">=21",
+    "fabric-api": "*",
+    "surveyor": ">=1.0.3"
+  },
+  "suggests": {
+    "modmenu": "*",
+    "antique_atlas": ">=3.0.0",
+    "hoofprint": ">=1.1.0",
+    "yacl": ">=3.8.1",
+    "mcqoy": ">=0.4.1"
+  }
 }

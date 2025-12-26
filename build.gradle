@@ -77,7 +77,8 @@ loom {
 }
 
 dependencies {
-  implementation "folk.sisby:kaleido-config:0.3.3+1.3.2"// To change the versions see the gradle.properties file
+  implementation "folk.sisby:kaleido-config:0.3.3+1.3.2")
+  // To change the versions see the gradle.properties file
   minecraft "com.mojang:minecraft:${project.minecraft_version}"
   mappings loom.layered() {
     officialMojangMappings()
@@ -97,7 +98,7 @@ dependencies {
   // These aren't hard dependencies - here for local testing.
   modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
   modRuntimeOnly "maven.modrinth:mcqoy:${project.mcqoy_version}"
-  modRuntimeOnly "maven.modrinth:yacl:${project.yacl_version}"
+  modRuntimeOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 }
 
 processResources {
