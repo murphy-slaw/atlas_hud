@@ -7,10 +7,10 @@ import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
 import folk.sisby.surveyor.WorldSummary;
 import folk.sisby.surveyor.client.SurveyorClient;
-import folk.sisby.surveyor.landmark.WorldLandmarks;
-import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
 import java.util.*;
 import java.util.stream.IntStream;
+
+import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
 import lombok.Getter;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
@@ -311,13 +311,18 @@ public class CompassOverlay implements HudRenderCallback {
   }
 
   private List<AtlasMarker> getSortedMarkers(Player player) {
-    WorldLandmarks landmarks = WorldSummary.of(player.level()).landmarks();
-    if (landmarks == null) {
-      return new ArrayList<>();
+    if (DeadReckoning.getLandmarks() == null) {
+      var landmarks = WorldSummary.of(player.level()).landmarks();
+      if (landmarks == null) {
+        DeadReckoning.invalidateLandmarks();
+      } else {
+        DeadReckoning.setLandmarks(
+            landmarks.keySet(SurveyorClient.getExploration()).entries().stream()
+                .map(entry -> landmarks.get(entry.getKey(), entry.getValue()))
+                .toList());
+      }
     }
-
-    return landmarks.keySet(SurveyorClient.getExploration()).entries().stream()
-        .map(entry -> landmarks.get(entry.getKey(), entry.getValue()))
+    return DeadReckoning.getLandmarks().stream()
         .filter(Objects::nonNull)
         .filter(e -> e.contains(LandmarkComponentTypes.POS))
         .map(landmark -> new AtlasMarker(player, landmark))
