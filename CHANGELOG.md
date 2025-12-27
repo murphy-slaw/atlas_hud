@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] 2025-12-26
+
+### Changed
+- Switched config from Cloth Config to Kaleido/McQoy/YACL. Working color pickers! Thanks to sisby-folk for the PR.
+- Option to display only the four cardinal directions or all 8 (cardinal + intercardinal).
+- Lots of non-user-visible code shuffling under the hood.
+
+### Fixed
+- Fixed a crash when accessing Surveyor landmarks without a POS component. Thanks to vgskye for the patch.
+- Fixed caching of landmarks to reduce Surveyor server access in the case where the active set is unchanged.
+
 ## [1.5.2] 2025-12-22
 
 ### Changed
