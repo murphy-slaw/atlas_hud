@@ -297,6 +297,7 @@ public class CompassOverlay implements HudRenderCallback {
             font, text, (int) x, calcYOffset(), textColor, DeadReckoning.CONFIG.style.textShadow);
       }
     }
+    resetColor();
   }
 
   private List<AtlasMarker> getSortedMarkers(Player player) {
