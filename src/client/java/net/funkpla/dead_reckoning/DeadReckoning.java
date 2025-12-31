@@ -65,11 +65,11 @@ public class DeadReckoning implements ClientModInitializer {
 
     SurveyorClientEvents.Register.landmarksAdded(
       new ResourceLocation(MOD_ID, "landmarks_added"),
-      (level, worldLandmarks, landmarks) -> invalidateLandmarks());
+      (worldLandmarks, landmarks) -> invalidateLandmarks());
 
     SurveyorClientEvents.Register.landmarksRemoved(
       new ResourceLocation(MOD_ID, "landmarks_removed"),
-      (world, worldLandmarks, landmarks) -> invalidateLandmarks());
+      (worldLandmarks, landmarks) -> invalidateLandmarks());
 
     ClientTickEvents.END_CLIENT_TICK.register(
       client -> {
