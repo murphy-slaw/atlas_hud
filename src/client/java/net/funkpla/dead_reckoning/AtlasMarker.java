@@ -37,21 +37,23 @@ public class AtlasMarker {
 
   public Texture getTexture() {
 
+    if (FabricLoader.getInstance().isModLoaded(AntiqueAtlas.ID)) {
+      MarkerTextures textures = MarkerTextures.getInstance();
+      MarkerTexture markerTexture = textures.get(textures.minimumId(landmark.id()));
+      if (markerTexture != null)
+        return new Texture(
+            markerTexture.id(),
+            markerTexture.accentId(),
+            markerTexture.textureWidth(),
+            markerTexture.textureHeight(),
+            null);
+    }
+
     if (landmark.contains(LandmarkComponentTypes.STACK)) {
       var stack = landmark.get(LandmarkComponentTypes.STACK);
       if (stack != null && !stack.isEmpty()) {
         return new Texture(null, null, 16, 16, stack);
       }
-    }
-
-    if (FabricLoader.getInstance().isModLoaded(AntiqueAtlas.ID)) {
-      MarkerTexture markerTexture = MarkerTextures.getInstance().fromLandmark(landmark);
-      return new Texture(
-          markerTexture.id(),
-          markerTexture.accentId(),
-          markerTexture.textureWidth(),
-          markerTexture.textureHeight(),
-          null);
     }
 
     return new Texture(null, null, 16, 16, null);
@@ -68,7 +70,8 @@ public class AtlasMarker {
 
   float calcScale() {
     return Float.min(
-        DeadReckoning.CONFIG.markers.scale, Float.max(calcMarkerScale(), DeadReckoning.CONFIG.markers.minScale));
+        DeadReckoning.CONFIG.markers.scale,
+        Float.max(calcMarkerScale(), DeadReckoning.CONFIG.markers.minScale));
   }
 
   public record Texture(
